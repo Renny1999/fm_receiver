@@ -1,4 +1,4 @@
-# fm_radio_receiver
+# fm_receiver
 
 Dependencies:<br />
 SoapySDR configured to use RTL-SDR <br />
