@@ -17,6 +17,15 @@ using namespace std;
 void* stage_1_filtering_thread(void* args){
     stage_1_filter_args* params = (stage_1_filter_args*) args;
 
+    // set up parameters
+    int taps = params->ntaps;
+    int chunk_size = params->chunk_size;
+    double Fs = params->sample_rate;
+    BlockingQueue* in  = params->in;
+    BlockingQueue* out  = params->out;
+
+    int dec_rate = int(Fs/200000);
+
     // setup fftw parameters
     complex<float>* forward_fft_in = new complex<float>[512];
     complex<float>* forward_fft_out = new complex<float>[512];
@@ -38,13 +47,6 @@ void* stage_1_filtering_thread(void* args){
         reinterpret_cast<fftwf_complex*>(inverse_fft_out),
         FFTW_BACKWARD, 
         FFTW_ESTIMATE);
-
-    // set up parameters
-    int taps = params->ntaps;
-    int chunk_size = params->chunk_size;
-    BlockingQueue* in  = params->in;
-    BlockingQueue* out  = params->out;
-
 
     // read in filter coefficients
     ifstream file;
@@ -71,14 +73,17 @@ void* stage_1_filtering_thread(void* args){
 
     printf("[STAGE 1]   initialized filter FFT\n");
 
+    int counter = 0;    // every dec_rate sample, the sample is saved
+    int index = 0;      // goes from 0 to chunk_size-1
     // while(true){
+    complex<float>* sig_filtered = new complex<float>[chunk_size];
+
     for(int i = 0; i < 5000; i++){
         complex<float>* data = in->pop()->data;
 
         /*          approach 2      FFT       */
         complex<float>* fft_res = new complex<float>[chunk_size];   // stores the result of the FFT
         complex<float>* filtered = new complex<float>[chunk_size];  // stores the filtered signal 
-
 
         // perform FFT on the signal
         // cout<<"performing FFT"<<endl;
@@ -105,14 +110,24 @@ void* stage_1_filtering_thread(void* args){
         // copy the result to a seperate buffer
         //      *   maybe we can also perform decimation here
 
-        
-        complex<float>* sig_filtered = new complex<float>[chunk_size];
+
         for(int i = 0; i < chunk_size; i++){
-            sig_filtered[i] = inverse_fft_out[i];
+            if(counter%dec_rate == 0){
+                if(counter == dec_rate){
+                    counter = 0;
+                }
+
+                sig_filtered[index] = inverse_fft_out[i];
+                index++;
+                if(index == chunk_size){
+                    out->push(sig_filtered);
+                    sig_filtered = new complex<float>[chunk_size];
+                    index = 0;
+                }
+            }
+            counter++;
         }
 
-        out->push(sig_filtered);
-        
-
+        delete []data;
     }
 }

@@ -18,6 +18,7 @@
 using namespace std;
 
 int CHUNK_SIZE = 512;
+int Fs = 1e6;
 
 void filter_and_save(string output_filename);
 
@@ -29,7 +30,7 @@ int main(){
 
 
     capture_args capture_config = capture_args();
-        capture_config.sample_rate = 1e6;
+        capture_config.sample_rate = Fs;
         capture_config.center_freq = 91.9e6;
         capture_config.out = &capture_out;
         capture_config.chunk_size = CHUNK_SIZE;
@@ -39,6 +40,7 @@ int main(){
         stage_1_config.out = &stage1_out;
         stage_1_config.ntaps = 64;
         stage_1_config.filter_path = "./filters/stage_1_filter.txt";
+        stage_1_config.sample_rate = Fs;
         stage_1_config.chunk_size = CHUNK_SIZE;
       
     pthread_t capture_id;
@@ -52,21 +54,21 @@ int main(){
 
     FILE *fp;
     // string filename = "./output/filtered_result.txt";
-    // string filename = "./output/exp/iFFT_1M.txt";
-    // fp = fopen(filename.c_str(),"w");
-    // if(fp == nullptr){
-    //     perror("Error");
-    // }
+    string filename = "./output/exp/decimated.txt";
+    fp = fopen(filename.c_str(),"w");
+    if(fp == nullptr){
+        perror("Error");
+    }
 
-    // for(int j = 0; j < 5000; j++){
-    //     cout<<j<<endl;
-    //     complex<float>* buffer = stage1_out.pop()->data;
-    //     for(int i = 0; i < CHUNK_SIZE; i++){
-    //         complex<float> num = buffer[i];
-    //         fprintf(fp, "%f,%f\n", num.real(), num.imag());
-    //     }
-    // }
-    // fclose(fp);
+    for(int j = 0; j < 1000; j++){
+        cout<<j<<endl;
+        complex<float>* buffer = stage1_out.pop()->data;
+        for(int i = 0; i < CHUNK_SIZE; i++){
+            complex<float> num = buffer[i];
+            fprintf(fp, "%f,%f\n", num.real(), num.imag());
+        }
+    }
+    fclose(fp);
 
     return 0;
 }

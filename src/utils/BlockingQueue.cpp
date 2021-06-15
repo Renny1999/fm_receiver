@@ -20,7 +20,7 @@ BlockingQueue::BlockingQueue(int capacity){
 QueueElement* BlockingQueue::pop(){
     pthread_mutex_lock(&access_mutex);
     while(this->size == 0){
-        cout<<"Blocking"<<endl;
+        // cout<<"Blocking"<<endl;
         pthread_cond_wait(&non_empty_cond, &access_mutex);
     }
 
