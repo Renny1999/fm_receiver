@@ -21,8 +21,8 @@ void* stage_1_filtering_thread(void* args){
     int taps = params->ntaps;
     int chunk_size = params->chunk_size;
     double Fs = params->sample_rate;
-    BlockingQueue* in  = params->in;
-    BlockingQueue* out  = params->out;
+    BlockingQueue<complex<float>>* in  = params->in;
+    BlockingQueue<complex<float>>* out  = params->out;
 
     int dec_rate = int(Fs/200000);
 

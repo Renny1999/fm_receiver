@@ -2,11 +2,12 @@
 #define STATE_1_FILTERING_THREAD_H
 
 #include <string>
+#include <complex>
 #include "../utils/BlockingQueue.h"
 
 struct stage_1_filter_args{
-    BlockingQueue* in; 
-    BlockingQueue* out; 
+    BlockingQueue<std::complex<float>>* in; 
+    BlockingQueue<std::complex<float>>* out; 
     std::string filter_path;
     double sample_rate;
     int ntaps;

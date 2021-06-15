@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <cstdlib>
-#include <complex>
 #include <iostream>
 #include <unistd.h> // sleep()
 #include <string.h>
@@ -18,7 +17,7 @@ using namespace std;
 void* capture_thread(void* args){
     sleep(1);
     capture_args* capture_config = (capture_args*) args;
-    BlockingQueue* out = capture_config->out;
+    BlockingQueue<complex<float>>* out = capture_config->out;
     int CHUNK_SIZE = capture_config->chunk_size;
 
     SoapySDR::KwargsList results = SoapySDR::Device::enumerate();
