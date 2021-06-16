@@ -40,7 +40,9 @@ int main(){
         stage_1_config.in = &capture_out;
         stage_1_config.out = &stage1_out;
         stage_1_config.ntaps = 64;
-        stage_1_config.filter_path = "./filters/stage_1_filter.txt";
+        stage_1_config.filter_path_fft = "./filters/stage_1_filter.txt";
+        stage_1_config.filter_path_diffeq_a = "./filters/stage_1_diffeq_a.txt";
+        stage_1_config.filter_path_diffeq_b = "./filters/stage_1_diffeq_b.txt";
         stage_1_config.sample_rate = Fs;
         stage_1_config.chunk_size = CHUNK_SIZE;
 
@@ -56,7 +58,7 @@ int main(){
     pthread_create(&capture_id, NULL, &capture_thread, &capture_config);
 
     pthread_t stage_1_id;
-    pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread, &stage_1_config);
+    pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_fft, &stage_1_config);
 
     pthread_t fm_demod_id;
     pthread_create(&fm_demod_id, NULL, &FM_demod_thread, &fm_demod_config);

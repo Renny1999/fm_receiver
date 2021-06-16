@@ -1,4 +1,4 @@
-
+#include <cmath>
 #include "FM_demod_thread.h"
 
 using namespace std;
@@ -48,9 +48,14 @@ void* FM_demod_thread(void* args){
 		// I think I can demodulate the signal to left & right channels 
 		// here since it's only 2 extra for loops
 
-		double* left_channel = new double[chunk_size];
-		double* right_channel = new double[chunk_size];
+		complex<double>* left_channel = new complex<double>[chunk_size];
+		complex<double>* right_channel = new complex<double>[chunk_size];
 
+		// e^-j2pif dt
+		for(int i = 0; i < chunk_size; i++){
+			left_channel[i] = complex<double>(de_emphasized[i], 0)*exp(complex<double>(0, -1*i*2*M_PI*left_offset/Fs));
+		}
+	
 		left_out->push(de_emphasized);
 		delete[] data;
 	}
