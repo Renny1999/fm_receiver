@@ -8,8 +8,7 @@ void* FM_demod_thread(void* args){
 	FM_demod_args* params = (FM_demod_args*) args;
 
 	BlockingQueue<complex<float>>* in = params->in;
-	BlockingQueue<double>* left_out = params->left_out;
-	BlockingQueue<double>* right_out = params->right_out;
+	BlockingQueue<double>* out = params->out;
 
 	double Fs = params->sample_rate;
 	int chunk_size = params->chunK_size;
@@ -44,19 +43,8 @@ void* FM_demod_thread(void* args){
 			y_1 = de_emphasized[i];
 		}
 
+		out->push(de_emphasized);
 
-		// I think I can demodulate the signal to left & right channels 
-		// here since it's only 2 extra for loops
-
-		complex<double>* left_channel = new complex<double>[chunk_size];
-		complex<double>* right_channel = new complex<double>[chunk_size];
-
-		// e^-j2pif dt
-		for(int i = 0; i < chunk_size; i++){
-			left_channel[i] = complex<double>(de_emphasized[i], 0)*exp(complex<double>(0, -1*i*2*M_PI*left_offset/Fs));
-		}
-	
-		left_out->push(de_emphasized);
 		delete[] data;
 	}
 }
