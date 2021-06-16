@@ -8,7 +8,8 @@
 
 struct FM_demod_args{
 	BlockingQueue<std::complex<float>>* in;
-	BlockingQueue<double>* out;
+	BlockingQueue<double>* left_out;
+	BlockingQueue<double>* right_out;
 	int chunK_size;
 	double sample_rate;
 };

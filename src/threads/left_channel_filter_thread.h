@@ -1,0 +1,6 @@
+#ifndef LEFT_CHANNEL_FILTER_THREAD_H 
+#define LEFT_CHANNEL_FILTER_THREAD_H
+
+
+
+#endif

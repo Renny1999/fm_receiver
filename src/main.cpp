@@ -26,7 +26,8 @@ int main(){
     SoapySDR::Kwargs::iterator it;
     BlockingQueue<complex<float>> capture_out;  // same as filter_in
     BlockingQueue<complex<float>> stage1_out;   // same as fm_demod_in
-    BlockingQueue<double> fm_demod_out; 
+    BlockingQueue<double> fm_demod_left_out; 
+    BlockingQueue<double> fm_demod_right_out; 
 
 
     capture_args capture_config;
@@ -45,7 +46,8 @@ int main(){
 
     FM_demod_args fm_demod_config;
         fm_demod_config.in = &stage1_out;
-        fm_demod_config.out = &fm_demod_out;
+        fm_demod_config.left_out = &fm_demod_left_out;
+        fm_demod_config.right_out = &fm_demod_right_out;
         fm_demod_config.chunK_size = CHUNK_SIZE;
         fm_demod_config.sample_rate = 200000;   // calculated as Fs/dec_rate, it is typically 200kHz which is 
                                                 // 2 times the bandwidth of a FM radio channel
@@ -74,7 +76,7 @@ int main(){
     for(int j = 0; j < 1000; j++){
         cout<<j<<endl;
         // complex<float>* buffer = fm_demod_out.pop()->data;
-        double* buffer = fm_demod_out.pop()->data;
+        double* buffer = fm_demod_left_out.pop()->data;
         for(int i = 0; i < CHUNK_SIZE; i++){
             complex<float> num = buffer[i];
             // fprintf(fp, "%f,%f\n", num.real(), num.imag());
