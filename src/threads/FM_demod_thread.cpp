@@ -12,8 +12,6 @@ void* FM_demod_thread(void* args){
 
 	double Fs = params->sample_rate;
 	int chunk_size = params->chunK_size;
-	double left_offset = 23*1000;	// 23 kHz
-	double right_offset = 38*1000;	// 38 kHz
 	
 	// create de-emphasis filter coefficients:
 	double d = Fs*75e-6;	// number of samples to hit the -3dB point

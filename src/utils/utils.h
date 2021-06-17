@@ -17,4 +17,6 @@ struct elementwise_multi_sum_args{
 };
 void* elementwise_multi_sum(void* args);
 
+std::vector<std::complex<float>>* read_butterworth_coeffs(std::string filename);
+
 #endif
