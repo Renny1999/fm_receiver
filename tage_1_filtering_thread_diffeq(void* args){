@@ -1,0 +1,33 @@
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mindex bc58e01..969b65e 100644[m
+[1m--- a/.gitignore[m
+[1m+++ b/.gitignore[m
+[36m@@ -1,3 +1,4 @@[m
+ /src/output/[m
+ /src/filters/[m
+ *.txt[m
+[32m+[m[32m/target/[m
+[1mdiff --git a/src/Makefile b/src/Makefile[m
+[1mindex d304565..5f5b8f5 100644[m
+[1m--- a/src/Makefile[m
+[1m+++ b/src/Makefile[m
+[36m@@ -4,15 +4,15 @@[m [mFFTWFFLAGS = -lfftw3f[m
+ [m
+ all: main.cpp ./utils/utils.cpp ./threads/capture_thread.cpp  ./threads/stage_1_filtering_thread.cpp ./threads/FM_demod_thread.cpp ./threads/mono_audio_extraction_thread.cpp[m
+ 	clear[m
+[31m-	$(CC)  -pthread -o main $? $(SOAPYFLAGS) $(FFTWFFLAGS)[m
+[32m+[m	[32m$(CC)  -pthread -o ../target/main $? $(SOAPYFLAGS) $(FFTWFFLAGS)[m
+ [m
+ test: [m
+[31m-	$(CC) -pthread -o test test.cpp ./utils/BlockingQueue.cpp ./threads/threads.cpp[m
+[32m+[m	[32m$(CC) -pthread -o ../target/test test.cpp ./utils/BlockingQueue.cpp ./threads/threads.cpp[m
+ [m
+ run: [m
+ 	make reset || true[m
+ 	make all[m
+[31m-	./main[m
+[32m+[m	[32m./../target/main[m
+ [m
+ reset:[m
+ 	rm ./output/exp/*[m
+\ No newline at end of file[m
