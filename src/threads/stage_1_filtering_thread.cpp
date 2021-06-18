@@ -79,13 +79,13 @@ void* stage_1_filtering_thread_fft(void* args){
     int counter = 0;    // every dec_rate sample, the sample is saved
     int index = 0;      // goes from 0 to chunk_size-1
     // while(true){
+    
+    // this is also the decimated signal
     complex<float>* sig_filtered = new complex<float>[chunk_size];
 
     for(int i = 0; i < 5000; i++){
-        complex<float>* sig_filtered = new complex<float>[chunk_size];
         complex<float>* data = in->pop()->data;
 
-        /*          approach 2      FFT       */
         complex<float>* fft_res = new complex<float>[chunk_size];   // stores the result of the FFT
         complex<float>* filtered = new complex<float>[chunk_size];  // stores the filtered signal 
 
@@ -114,25 +114,19 @@ void* stage_1_filtering_thread_fft(void* args){
         // copy the result to a seperate buffer
         //      *   maybe we can also perform decimation here
 
-
         for(int i = 0; i < chunk_size; i++){
-            // if(counter%dec_rate == 0){
-            //     if(counter == dec_rate){
-            //         counter = 0;
-            //     }
-
-            //     sig_filtered[index] = inverse_fft_out[i];
-            //     index++;
-            //     if(index == chunk_size){
-            //         out->push(sig_filtered);
-            //         sig_filtered = new complex<float>[chunk_size];
-            //         index = 0;
-            //     }
-            // }
-            // counter++;
-            sig_filtered[i] = inverse_fft_out[i];
+            if(counter == 0){      // if the sample is the one to be taken
+                sig_filtered[index] = inverse_fft_out[i];
+                index++;    // the next index at which sample will be stored
+                index%=chunk_size;
+                if(index == 0){    // if the next index is 0, this buffer is full, send to queue
+                    out->push(sig_filtered);
+                    sig_filtered = new complex<float>[chunk_size];
+                }
+            }
+            counter++;
+            counter%=dec_rate;
         }
-        out->push(sig_filtered);
 
         delete []data;
     }
@@ -173,8 +167,7 @@ void* stage_1_filtering_thread_diffeq(void* args){
     int index = 0;      // goes from 0 to chunk_size-1
 
     // while(true){
-
-
+    complex<float>* decimated = new complex<float>[chunk_size];
     for(int i = 0; i < 5000; i++){
         complex<float>* data = in->pop()->data;
         // apply filter here
@@ -203,23 +196,18 @@ void* stage_1_filtering_thread_diffeq(void* args){
             sig_filtered[data_index] = res;
         }
 
-        complex<float>* decimated = new complex<float>[chunk_size];
-
         for(int i = 0; i < chunk_size; i++){
-            if(counter%dec_rate == 0){
-                if(counter == dec_rate){
-                    counter = 0;
-                }
-
+            if(counter == 0){
                 decimated[index] = sig_filtered[i];
                 index++;
-                if(index == chunk_size){
+                index%=chunk_size;
+                if(index == 0){
                     out->push(decimated);
                     decimated = new complex<float>[chunk_size];
-                    index = 0;
                 }
             }
             counter++;
+            counter%=dec_rate;
         }
 
         // contents of data no longer needed

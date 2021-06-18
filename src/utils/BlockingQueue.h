@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 using namespace std;
 
@@ -28,6 +29,7 @@ class BlockingQueue{
     pthread_cond_t non_empty_cond;   // use this when the queue is empty
 
     QueueElement<T>* pop();
+    QueueElement<T>* pop(int timeout);
     // void push(std::complex<float>* buffer);
     void push(T* buffer);
 
@@ -55,6 +57,49 @@ QueueElement<T>* BlockingQueue<T>::pop(){
     while(this->size == 0){
         cout<<"Blocking"<<endl;
         pthread_cond_wait(&non_empty_cond, &access_mutex);
+    }
+
+    // the blocking is done
+    QueueElement<T>* popped = this->head;
+    if(!(popped)){
+        cout<<"bad"<<endl;
+    }
+
+    // adjust size
+    this->size--;
+
+    // if the queue is empty again, set head and tail to nullptr
+    if(this->size == 0) {
+        this->head = nullptr;
+        this->tail = head;
+    }else{
+    // otherwise move head to head->next
+        this->head = head->next;
+    }
+    pthread_mutex_unlock(&access_mutex);
+    return popped;
+}
+
+// times out after timeInMs if the queue is empty. returns nullptr
+template <class T>
+QueueElement<T>* BlockingQueue<T>::pop(int timeInMs){
+
+    struct timeval tv;
+    struct timespec ts;
+
+    gettimeofday(&tv, NULL);
+    ts.tv_sec = time(NULL)+timeInMs/1000;
+    ts.tv_nsec = tv.tv_usec * 1000 + 1000 * 1000 * (timeInMs % 1000);
+    ts.tv_sec += ts.tv_nsec / (1000 * 1000 * 1000);
+    ts.tv_nsec %= (1000 * 1000 * 1000);
+
+    pthread_mutex_lock(&access_mutex);
+    while(this->size == 0){
+        cout<<"Blocking"<<endl;
+        int res = pthread_cond_timedwait(&non_empty_cond, &access_mutex, &ts);
+        if(res == ETIMEDOUT){
+            return nullptr;
+        }
     }
 
     // the blocking is done

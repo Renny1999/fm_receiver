@@ -8,3 +8,11 @@ all: main.cpp ./utils/utils.cpp ./threads/capture_thread.cpp ./threads/stage_1_f
 
 test: 
 	$(CC) -pthread -o test test.cpp ./utils/BlockingQueue.cpp ./threads/threads.cpp
+
+run: 
+	make reset || true
+	make all
+	./main
+
+reset:
+	rm ./output/exp/*

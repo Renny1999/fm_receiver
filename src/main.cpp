@@ -56,8 +56,8 @@ int main(){
     pthread_create(&capture_id, NULL, &capture_thread, &capture_config);
 
     pthread_t stage_1_id;
-    // pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_diffeq, &stage_1_config);
-    pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_fft, &stage_1_config);
+    pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_diffeq, &stage_1_config);
+    // pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_fft, &stage_1_config);
 
     // pthread_t fm_demod_id;
     // pthread_create(&fm_demod_id, NULL, &FM_demod_thread, &fm_demod_config);
@@ -68,14 +68,14 @@ int main(){
 
     FILE *fp;
     // string filename = "./output/filtered_result.txt";
-    string filename = "./output/exp/filtered_with_fft_decimated.txt";
+    string filename = "./output/exp/filtered_with_diffeq.txt";
     fp = fopen(filename.c_str(),"w");
     if(fp == nullptr){
         perror("Error");
     }
 
     cout<<"[Main]   done waiting"<<endl;
-    for(int j = 0; j < 5000; j++){
+    for(int j = 0; j < 1000; j++){
         cout<<j<<endl;
         complex<float>* buffer = stage1_out.pop()->data;
         // double* buffer = fm_demod_out.pop()->data;

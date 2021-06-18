@@ -2,5 +2,6 @@
     "files.associations": {
         "*.c": "c",
         "complex": "cpp"
-    }
+    },
+    "editor.fontSize": 18
 }
