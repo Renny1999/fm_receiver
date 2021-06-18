@@ -81,7 +81,7 @@ void* elementwise_multi_sum(void* args){
 	params->res = output;
 }
 
-vector<complex<float>>* read_butterworth_coeffs(string filepath){
+vector<complex<float>>* read_butterworth_complex_coeffs(string filepath){
 	ifstream file;
 	file.open(filepath);
 
@@ -99,6 +99,29 @@ vector<complex<float>>* read_butterworth_coeffs(string filepath){
 		getline(file,temp);
 		float imag_part = stof(temp);
 		vec->push_back(complex<float>(real_part, imag_part));
+	}
+
+	return vec;
+}
+
+vector<float>* read_butterworth_float_coeffs(string filepath){
+	ifstream file;
+	file.open(filepath);
+
+	if(!file.is_open()){
+		printf("Failed to open %s\n", filepath.c_str());
+		file.close();
+		exit(-1);
+	}
+	
+	vector<float>* vec = new vector<float>();
+	string temp;
+	while(!file.eof()){
+		getline(file,temp);
+		float real_part = stof(temp);
+		getline(file,temp);
+		// float imag_part = stof(temp);
+		vec->push_back(real_part);
 	}
 
 	return vec;

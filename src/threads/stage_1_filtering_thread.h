@@ -1,11 +1,10 @@
-#ifndef STATE_1_FILTERING_THREAD_H
-#define STATE_1_FILTERING_THREAD_H
+#ifndef LOWPASS_THREAD
+#define LOWPASS_THREAD
 
-#include <string>
 #include <complex>
 #include "../utils/BlockingQueue.h"
 
-struct stage_1_filter_args{
+struct stage_1_filtering_args{
     BlockingQueue<std::complex<float>>* in; 
     BlockingQueue<std::complex<float>>* out; 
     std::string filter_path_fft;
@@ -14,6 +13,7 @@ struct stage_1_filter_args{
     double sample_rate;
     int ntaps;
     int chunk_size;
+    int signal_bw;
 };
 
 //  lowpass the signal at 0~200kHz, then decimate it to achieve a new frequency of 200kHz

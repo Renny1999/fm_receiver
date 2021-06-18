@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <string>
 
 using namespace std;
 
@@ -28,7 +29,7 @@ class BlockingQueue{
     pthread_mutex_t access_mutex;
     pthread_cond_t non_empty_cond;   // use this when the queue is empty
 
-    QueueElement<T>* pop();
+    QueueElement<T>* pop(string owner = "");
     QueueElement<T>* pop(int timeout);
     // void push(std::complex<float>* buffer);
     void push(T* buffer);
@@ -52,10 +53,10 @@ BlockingQueue<T>::BlockingQueue(int capacity){
 }
 
 template <class T>
-QueueElement<T>* BlockingQueue<T>::pop(){
+QueueElement<T>* BlockingQueue<T>::pop(string owner){
     pthread_mutex_lock(&access_mutex);
     while(this->size == 0){
-        cout<<"Blocking"<<endl;
+        printf("[%s]    blocking\n", owner.c_str());
         pthread_cond_wait(&non_empty_cond, &access_mutex);
     }
 

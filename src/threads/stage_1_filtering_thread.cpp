@@ -18,7 +18,7 @@ using namespace std;
 
 // performs filtering using the fft method with remez filter
 void* stage_1_filtering_thread_fft(void* args){
-    stage_1_filter_args* params = (stage_1_filter_args*) args;
+    stage_1_filtering_args* params = (stage_1_filtering_args*) args;
 
     // set up parameters
     int taps = params->ntaps;
@@ -83,7 +83,8 @@ void* stage_1_filtering_thread_fft(void* args){
     // this is also the decimated signal
     complex<float>* sig_filtered = new complex<float>[chunk_size];
 
-    for(int i = 0; i < 5000; i++){
+    for(int i = 0; i < 5000*2; i++){
+        printf("[STAGE 1]   %d\n", i);
         complex<float>* data = in->pop()->data;
 
         complex<float>* fft_res = new complex<float>[chunk_size];   // stores the result of the FFT
@@ -93,18 +94,18 @@ void* stage_1_filtering_thread_fft(void* args){
         // cout<<"performing FFT"<<endl;
 
         // copy data input data into the buffer:
-        for(int i = 0; i < chunk_size; i++){
-            forward_fft_in[i] = data[i];
+        for(int data_index = 0; data_index < chunk_size; data_index++){
+            forward_fft_in[data_index] = data[data_index];
         }
         fftwf_execute(forward_plan);
 
         // filtering in the Fourier domain
         // copy the filtered spectrum into the buffer
-        for(int i = 0; i < chunk_size; i++){
-            complex<float> product = forward_fft_out[i]*filter_fft[i];
+        for(int data_index = 0; data_index < chunk_size; data_index++){
+            complex<float> product = forward_fft_out[data_index]*filter_fft[data_index];
             // think about scaling the iFFT result
             // maybe it's not needed due to scaling factor introduced by the filter?
-            inverse_fft_in[i] = complex<float>(product.real(), product.imag());
+            inverse_fft_in[data_index] = complex<float>(product.real(), product.imag());
         }
 
         // perform inverse FFT
@@ -114,18 +115,17 @@ void* stage_1_filtering_thread_fft(void* args){
         // copy the result to a seperate buffer
         //      *   maybe we can also perform decimation here
 
-        for(int i = 0; i < chunk_size; i++){
+        for(int data_index = 0; data_index < chunk_size; data_index++){
             if(counter == 0){      // if the sample is the one to be taken
-                sig_filtered[index] = inverse_fft_out[i];
-                index++;    // the next index at which sample will be stored
-                index%=chunk_size;
+                sig_filtered[index] = inverse_fft_out[data_index];
+                // the next index at which sample will be stored
+                index = (index+1) % chunk_size;
                 if(index == 0){    // if the next index is 0, this buffer is full, send to queue
                     out->push(sig_filtered);
                     sig_filtered = new complex<float>[chunk_size];
                 }
             }
-            counter++;
-            counter%=dec_rate;
+            counter = (counter+1) % dec_rate;
         }
 
         delete []data;
@@ -134,7 +134,9 @@ void* stage_1_filtering_thread_fft(void* args){
 
 // performs filtering using butterworth filter difference equations
 void* stage_1_filtering_thread_diffeq(void* args){
-    stage_1_filter_args* params = (stage_1_filter_args*) args;
+    string name = "STAGE 1";
+
+    stage_1_filtering_args* params = (stage_1_filtering_args*) args;
 
     // set up parameters
     int taps = params->ntaps;
@@ -149,10 +151,10 @@ void* stage_1_filtering_thread_diffeq(void* args){
     vector<complex<float>>* b;
 
     // read in diffeq "a" coefficients 
-    a = read_butterworth_coeffs(params->filter_path_diffeq_a);
+    a = read_butterworth_complex_coeffs(params->filter_path_diffeq_a);
 
     // read in diffeq "b" coefficients 
-    b = read_butterworth_coeffs(params->filter_path_diffeq_b);
+    b = read_butterworth_complex_coeffs(params->filter_path_diffeq_b);
    
     printf("[STAGE 1]   initialized filter difference eqution\n");
 
@@ -168,8 +170,8 @@ void* stage_1_filtering_thread_diffeq(void* args){
 
     // while(true){
     complex<float>* decimated = new complex<float>[chunk_size];
-    for(int i = 0; i < 5000; i++){
-        complex<float>* data = in->pop()->data;
+    for(int i = 0; i < 5000*2; i++){
+        complex<float>* data = in->pop(name)->data;
         // apply filter here
 
         complex<float>* sig_filtered = new complex<float>[chunk_size];
@@ -196,18 +198,18 @@ void* stage_1_filtering_thread_diffeq(void* args){
             sig_filtered[data_index] = res;
         }
 
-        for(int i = 0; i < chunk_size; i++){
+        for(int data_index = 0; data_index < chunk_size; data_index++){
             if(counter == 0){
-                decimated[index] = sig_filtered[i];
-                index++;
-                index%=chunk_size;
+                decimated[index] = sig_filtered[data_index];
+
+                index = (index+1) % chunk_size;
+
                 if(index == 0){
                     out->push(decimated);
                     decimated = new complex<float>[chunk_size];
                 }
             }
-            counter++;
-            counter%=dec_rate;
+            counter = (counter+1) % dec_rate;
         }
 
         // contents of data no longer needed

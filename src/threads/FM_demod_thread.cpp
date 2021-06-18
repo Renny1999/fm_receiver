@@ -1,9 +1,13 @@
 #include <cmath>
+#include <string>
+
 #include "FM_demod_thread.h"
 
 using namespace std;
 
 void* FM_demod_thread(void* args){
+	string name = "FM DEMOD";
+
 	// read in parameters
 	FM_demod_args* params = (FM_demod_args*) args;
 
@@ -23,8 +27,8 @@ void* FM_demod_thread(void* args){
 	complex<float> last(0.0, 0.0);
 	double y_1 = 0.0;		// y_1 means y[n-1], y1 means y[n+1]
 	// while(true){
-	for(int i = 0; i < 1000; i++){
-		complex<float>* data = in->pop()->data;
+	for(int i = 0; i < 1000*2; i++){
+		complex<float>* data = in->pop(name)->data;
 		double* fm_demodulated = new double[chunk_size];
 		double* de_emphasized = new double[chunk_size];
 

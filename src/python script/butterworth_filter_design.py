@@ -13,12 +13,17 @@ def filter2file(filename, filter):
 
 Fs = 1e6
 
-b,a = signal.butter(5, 200000, btype='low', analog=False, fs=Fs, output='ba')
+b,a = signal.butter(4, 200000, btype='low', analog=False, fs=Fs, output='ba')
 
 b_filename = "./filters/200kHz_lp_b.txt"
 a_filename = "./filters/200kHz_lp_a.txt"
 filter2file(b_filename, b)
 filter2file(a_filename, a)
 
-print(b)
-print(a)
+b,a = signal.butter(4, 44100, btype='low', analog=False, fs=200000, output='ba')
+
+b_filename = "./filters/44_1kHz_lp_b.txt"
+a_filename = "./filters/44_1kHz_lp_a.txt"
+filter2file(b_filename, b)
+filter2file(a_filename, a)
+

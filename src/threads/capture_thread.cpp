@@ -83,23 +83,24 @@ void* capture_thread(void* args){
     // 6. receive some samples
     // while(true){
 
-    FILE* fp;
-    fp = fopen("output/exp/unfiltered_1M.txt", "w");
-    for(int i = 0; i < 5000; i++){
+    // FILE* fp;
+    // fp = fopen("output/exp/unfiltered_1M.txt", "w");
+    for(int i = 0; i < 5000*2; i++){
+        printf("[CAPTURE]   %d\n", i);
         complex<float>* data = new complex<float>[CHUNK_SIZE];
         void* buffs[] = {data};
         int flags;
         long long time_ns;
         int ret = sdr->readStream(rx_stream, buffs, CHUNK_SIZE, flags, time_ns, 1e5);
 
-        for(int i = 0; i < CHUNK_SIZE; i++){
-            complex<float> sum = data[i];
-            fprintf(fp, "%f,%f\n", sum.real(), sum.imag());
-        }
+        // for(int j = 0; j < CHUNK_SIZE; j++){
+            // complex<float> sum = data[j];
+            // fprintf(fp, "%f,%f\n", sum.real(), sum.imag());
+        // }
         out->push((complex<float>*) data);
     }
 
-    fclose(fp);
+    // fclose(fp);
 
     return nullptr;
 
