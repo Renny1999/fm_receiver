@@ -17,6 +17,13 @@ struct QueueElement{
     // QueueElement* next;
     T* data;
     QueueElement* next;
+
+    ~QueueElement(){
+        if(this->next){
+            delete this->next;
+        }
+        delete []data;
+    }
 };
 
 template <class T>
@@ -56,7 +63,7 @@ template <class T>
 QueueElement<T>* BlockingQueue<T>::pop(string owner){
     pthread_mutex_lock(&access_mutex);
     while(this->size == 0){
-        printf("[%s]    blocking\n", owner.c_str());
+        // printf("[%s]    blocking\n", owner.c_str());
         pthread_cond_wait(&non_empty_cond, &access_mutex);
     }
 
@@ -159,6 +166,13 @@ int BlockingQueue<T>::getsize(){
 template <class T>
 BlockingQueue<T>::~BlockingQueue(){
     //stub
+    if(this->head){
+        delete head;
+    }
+    if(this->tail){
+        delete tail;
+    }
 }
+
 
 #endif

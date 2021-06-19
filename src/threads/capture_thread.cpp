@@ -85,7 +85,7 @@ void* capture_thread(void* args){
 
     // FILE* fp;
     // fp = fopen("output/exp/unfiltered_1M.txt", "w");
-    for(int i = 0; i < 5000*2; i++){
+    for(int i = 0; i < 5000*8; i++){
         printf("[CAPTURE]   %d\n", i);
         complex<float>* data = new complex<float>[CHUNK_SIZE];
         void* buffs[] = {data};

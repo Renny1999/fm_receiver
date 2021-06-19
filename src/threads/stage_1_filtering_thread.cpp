@@ -27,7 +27,7 @@ void* stage_1_filtering_thread_fft(void* args){
     BlockingQueue<complex<float>>* in  = params->in;
     BlockingQueue<complex<float>>* out  = params->out;
 
-    int dec_rate = int(Fs/200000);
+    int dec_rate = 5;
 
     // setup fftw parameters
     complex<float>* forward_fft_in = new complex<float>[512];
@@ -54,11 +54,9 @@ void* stage_1_filtering_thread_fft(void* args){
     // read in filter coefficients
     ifstream file;
     file.open(params->filter_path_fft);
-    // float* filter_coeffs = new float[taps];
     complex<float>* filter_fft = new complex<float>[chunk_size];
     if(file.is_open()){
         string temp;
-        // for(int i = 0; i < taps; i++){
         for(int i = 0; i < chunk_size; i++){
             getline(file, temp);
             cout<<temp<<endl;
@@ -83,7 +81,7 @@ void* stage_1_filtering_thread_fft(void* args){
     // this is also the decimated signal
     complex<float>* sig_filtered = new complex<float>[chunk_size];
 
-    for(int i = 0; i < 5000*2; i++){
+    for(int i = 0; i < 5000*8; i++){
         printf("[STAGE 1]   %d\n", i);
         complex<float>* data = in->pop()->data;
 
@@ -145,16 +143,22 @@ void* stage_1_filtering_thread_diffeq(void* args){
     BlockingQueue<complex<float>>* in  = params->in;
     BlockingQueue<complex<float>>* out  = params->out;
 
-    int dec_rate = int(Fs/200000);
+    int dec_rate = 3;
 
-    vector<complex<float>>* a;
-    vector<complex<float>>* b;
+    // vector<complex<float>>* a;
+    // vector<complex<float>>* b;
 
     // read in diffeq "a" coefficients 
-    a = read_butterworth_complex_coeffs(params->filter_path_diffeq_a);
+    // a = read_butterworth_complex_coeffs(params->filter_path_diffeq_a);
 
     // read in diffeq "b" coefficients 
-    b = read_butterworth_complex_coeffs(params->filter_path_diffeq_b);
+    // b = read_butterworth_complex_coeffs(params->filter_path_diffeq_b);
+
+    vector<float> *a;
+    vector<float> *b;
+    a = read_butterworth_float_coeffs(params->filter_path_diffeq_a);
+    b = read_butterworth_float_coeffs(params->filter_path_diffeq_b);
+
    
     printf("[STAGE 1]   initialized filter difference eqution\n");
 
@@ -170,7 +174,8 @@ void* stage_1_filtering_thread_diffeq(void* args){
 
     // while(true){
     complex<float>* decimated = new complex<float>[chunk_size];
-    for(int i = 0; i < 5000*2; i++){
+    for(int i = 0; i < 5000*8; i++){
+        printf("[STAGE 1]   %d\n", i);
         complex<float>* data = in->pop(name)->data;
         // apply filter here
 
@@ -183,22 +188,29 @@ void* stage_1_filtering_thread_diffeq(void* args){
 
             // calculate x_sum
             x_hist.push_front(d);   // add x[n] to the hist
+            float real_partx = 0;
+            float imag_partx = 0;
             for(int coeff_index = 0; coeff_index < b->size(); coeff_index++){
-                x_sum += x_hist[coeff_index] * (*b)[coeff_index];
+                // x_sum += x_hist[coeff_index] * (*b)[coeff_index];
+                real_partx += x_hist[coeff_index].real()*(*b)[coeff_index];
+                imag_partx += x_hist[coeff_index].imag()*(*b)[coeff_index];
             }
 
             // calculate y_sum
+            float real_party = 0;
+            float imag_party = 0;
             for(int coeff_index = 1; coeff_index < a->size(); coeff_index++){
-                y_sum += y_hist[coeff_index-1] * (*a)[coeff_index];
+                // y_sum += y_hist[coeff_index-1] * (*a)[coeff_index];
+                real_party += y_hist[coeff_index-1].real()*(*a)[coeff_index];
+                imag_party += y_hist[coeff_index-1].imag()*(*a)[coeff_index];
             }
 
-            complex<float> res = (x_sum-y_sum)/a0;
+
+            // complex<float> res = (x_sum-y_sum)/a0;
+            complex<float> res  = complex<float>(real_partx-real_party, imag_partx-imag_party)/a0;
             y_hist.push_front(res);
-
             sig_filtered[data_index] = res;
-        }
 
-        for(int data_index = 0; data_index < chunk_size; data_index++){
             if(counter == 0){
                 decimated[index] = sig_filtered[data_index];
 
@@ -216,4 +228,5 @@ void* stage_1_filtering_thread_diffeq(void* args){
         delete []data;
 
     }
+    return nullptr;
 }

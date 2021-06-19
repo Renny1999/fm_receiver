@@ -20,14 +20,17 @@
 using namespace std;
 
 int CHUNK_SIZE = 512;
-int Fs = 1e6;
+int Fs = 1.44e6;
+// int Fs = 2.4e6;
 
 int main(){
     SoapySDR::KwargsList results = SoapySDR::Device::enumerate();
     SoapySDR::Kwargs::iterator it;
     BlockingQueue<complex<float>> capture_out;  // same as filter_in
     BlockingQueue<complex<float>> stage1_out;   // same as fm_demod_in
-    BlockingQueue<double> fm_demod_out;         // same as mono_audio_extraction_in
+    BlockingQueue<double> fm_demod_out1;         // same as mono_audio_extraction_in
+    BlockingQueue<double> fm_demod_out2;         // same as pilot_extraction_thread_in
+    BlockingQueue<double> fm_demod_out3;         // same as LRdiff_extraction_thread_in
     BlockingQueue<double> mono_audio_extraction_out;
 
     capture_args capture_config;
@@ -39,10 +42,10 @@ int main(){
     stage_1_filtering_args stage_1_config;
         stage_1_config.in = &capture_out;
         stage_1_config.out = &stage1_out;
-        stage_1_config.ntaps = 64;
+        stage_1_config.ntaps = 512;
         stage_1_config.filter_path_fft = "./filters/stage_1_filter.txt";
-        stage_1_config.filter_path_diffeq_a = "./filters/200kHz_lp_a.txt";
-        stage_1_config.filter_path_diffeq_b = "./filters/200kHz_lp_b.txt";
+        stage_1_config.filter_path_diffeq_a = "./filters/100kHz_lp_a.txt";
+        stage_1_config.filter_path_diffeq_b = "./filters/100kHz_lp_b.txt";
         stage_1_config.signal_bw = 200*1000;    // 200kHz
         stage_1_config.sample_rate = Fs;
         stage_1_config.chunk_size = CHUNK_SIZE;
@@ -51,18 +54,20 @@ int main(){
 
     FM_demod_args fm_demod_config;
         fm_demod_config.in = &stage1_out;
-        fm_demod_config.out = &fm_demod_out;
+        fm_demod_config.out1 = &fm_demod_out1;
+        fm_demod_config.out2 = &fm_demod_out2;
+        fm_demod_config.out3 = &fm_demod_out3;
         fm_demod_config.chunK_size = CHUNK_SIZE;
-        fm_demod_config.sample_rate = 200000;   // calculated as Fs/dec_rate, it is typically 200kHz which is 
-                                                // 2 times the bandwidth of a FM radio channel
+        fm_demod_config.sample_rate = 480000;   
+
     m_audio_extract_args m_audio_extract_config;
-        m_audio_extract_config.in = &fm_demod_out;
+        m_audio_extract_config.in = &fm_demod_out1;
         m_audio_extract_config.out = &mono_audio_extraction_out;
         m_audio_extract_config.filter_path_fft = "./filters/stage_1_filter.txt";
-        m_audio_extract_config.filter_path_diffeq_a = "./filters/44_1kHz_lp_a.txt";
-        m_audio_extract_config.filter_path_diffeq_b = "./filters/44_1kHz_lp_b.txt";
-        m_audio_extract_config.signal_bw = 44.1*1000;    // 200kHz
-        m_audio_extract_config.sample_rate = 200000;
+        m_audio_extract_config.filter_path_diffeq_a = "./filters/15kHz_lp_a.txt";
+        m_audio_extract_config.filter_path_diffeq_b = "./filters/15kHz_lp_b.txt";
+        m_audio_extract_config.signal_bw = 44.1*1000;    
+        m_audio_extract_config.sample_rate = 480000;
         m_audio_extract_config.chunk_size = CHUNK_SIZE;
       
     pthread_t capture_id;
@@ -93,7 +98,7 @@ int main(){
     }
 
     cout<<"[Main]   done waiting"<<endl;
-    for(int j = 0; j < 1000*2; j++){
+    for(int j = 0; j < 1000*8; j++){
         cout<<j<<endl;
         // complex<float>* buffer = stage1_out.pop(3000)->data;
         QueueElement<double>* e = mono_audio_extraction_out.pop(3000);
@@ -109,6 +114,7 @@ int main(){
         }
     }
     fclose(fp);
+    cout<<"saved"<<endl;
 
     return 0;
 }

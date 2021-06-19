@@ -15,11 +15,14 @@ def filter2file(filename, filter):
 
 filename = "./filters/stage_1_filter.txt"
 
-f_bw = 200000
-n_taps = 64 
-Fs = 1e6
+f_bw = 100000
+n_taps = 512 
+Fs = 1.44e6
 
-lpf = signal.remez(64, [0, f_bw, f_bw+(Fs/2-f_bw)/4, Fs/2], [1,0], Hz=Fs)
+cutoff = f_bw
+trans_width = 10000
+
+lpf = signal.remez(n_taps, [0, cutoff, cutoff+trans_width, Fs/2], [1,0], Hz=Fs)
 lpf_fft = np.fft.fft(lpf, 512)
 
 filter2file(filename, lpf_fft)

@@ -12,7 +12,9 @@ void* FM_demod_thread(void* args){
 	FM_demod_args* params = (FM_demod_args*) args;
 
 	BlockingQueue<complex<float>>* in = params->in;
-	BlockingQueue<double>* out = params->out;
+	BlockingQueue<double>* out1 = params->out1;
+	BlockingQueue<double>* out2 = params->out2;
+	BlockingQueue<double>* out3 = params->out3;
 
 	double Fs = params->sample_rate;
 	int chunk_size = params->chunK_size;
@@ -27,26 +29,33 @@ void* FM_demod_thread(void* args){
 	complex<float> last(0.0, 0.0);
 	double y_1 = 0.0;		// y_1 means y[n-1], y1 means y[n+1]
 	// while(true){
-	for(int i = 0; i < 1000*2; i++){
+	for(int i = 0; i < 1000*8; i++){
 		complex<float>* data = in->pop(name)->data;
-		double* fm_demodulated = new double[chunk_size];
+		double* fm_demodulated1 = new double[chunk_size];
+		double* fm_demodulated2 = new double[chunk_size];
 		double* de_emphasized = new double[chunk_size];
 
 		// apply FM demodulation
 		for(int i = 0; i < chunk_size; i++){
-			fm_demodulated[i] = arg(data[i]*conj(last));
+			double res = arg(data[i]*conj(last));
+			fm_demodulated1[i] = res;
+			// fm_demodulated2[i] = res;
 			last = data[i];
 		}
+		
+		/* add a second channel that takes out fm_demodulated */
+		// out2->push(fm_demodulated1);
+		// out3->push(fm_demodulated2);
 
 		// apply de_emphasis filter
 		for(int i = 0; i < chunk_size; i++){
 			// yn = b0xn - a1y_1
-			de_emphasized[i] = (b[0] * fm_demodulated[i] - a[1] * y_1)/a[0];
+			de_emphasized[i] = (b[0] * fm_demodulated1[i] - a[1] * y_1)/a[0];
 			y_1 = de_emphasized[i];
 		}
 
-		out->push(de_emphasized);
-
-		delete[] data;
+		out1->push(de_emphasized);
 	}
+
+	return nullptr;
 }

@@ -11,19 +11,22 @@ def filter2file(filename, filter):
 	file.write("{}\n".format(np.real(last_element)))
 	file.write("{}".format(np.imag(last_element)))
 
-Fs = 1e6
+# Fs = 2.4e6
+Fs = 1.44e6
 
-b,a = signal.butter(4, 200000, btype='low', analog=False, fs=Fs, output='ba')
+b,a = signal.butter(2, 100000, btype='low', analog=False, fs=Fs, output='ba')
 
-b_filename = "./filters/200kHz_lp_b.txt"
-a_filename = "./filters/200kHz_lp_a.txt"
+b_filename = "./filters/100kHz_lp_b.txt"
+a_filename = "./filters/100kHz_lp_a.txt"
 filter2file(b_filename, b)
 filter2file(a_filename, a)
 
-b,a = signal.butter(4, 44100, btype='low', analog=False, fs=200000, output='ba')
+Fs = 480000
 
-b_filename = "./filters/44_1kHz_lp_b.txt"
-a_filename = "./filters/44_1kHz_lp_a.txt"
+b,a = signal.butter(4, 15000, btype='low', analog=False, fs=Fs, output='ba')
+
+b_filename = "./filters/15kHz_lp_b.txt"
+a_filename = "./filters/15Hz_lp_a.txt"
 filter2file(b_filename, b)
 filter2file(a_filename, a)
 

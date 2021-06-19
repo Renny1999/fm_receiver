@@ -79,6 +79,7 @@ void* elementwise_multi_sum(void* args){
 	}
 
 	params->res = output;
+	return nullptr;
 }
 
 vector<complex<float>>* read_butterworth_complex_coeffs(string filepath){

@@ -21,7 +21,7 @@ void* mono_audio_extraction_thread_diffeq(void* args){
 	double Fs = params->sample_rate;
     double audio_freq = 44100;
 
-    int dec_rate = int(Fs/audio_freq);
+    int dec_rate = 10;
 
 	int chunk_size = params->chunk_size;
 
@@ -47,8 +47,7 @@ void* mono_audio_extraction_thread_diffeq(void* args){
 
     // while(true){
     double* extracted = new double[chunk_size];
-    for(int i = 0; i < 1000*2; i++){
-        cout<<i<<endl;
+    for(int i = 0; i < 1000*8; i++){
         double* data = in->pop(name)->data;
         // apply filter here
 
