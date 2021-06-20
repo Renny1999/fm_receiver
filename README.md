@@ -22,6 +22,7 @@ TODOs: <br />
   * SOLVED by using sample rates and decimation rates to perfectly achieve 48kHz sample frequency
 * [ ] complex number multiplication in stage_1_filtering_thread is more expensive than simply mulplying by a double
   * we know the coefficients in the butterworth filter difference equation are all real, so maybe take advantage of that?
+* [ ] take care of memory leaks
 
 Notes: <br />
 * Fs = 1.44MHz
