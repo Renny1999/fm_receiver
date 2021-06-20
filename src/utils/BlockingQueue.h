@@ -19,10 +19,10 @@ struct QueueElement{
     QueueElement* next;
 
     ~QueueElement(){
-        if(this->next){
-            delete this->next;
+        if(this->data){
+            delete [](this->data);
         }
-        delete []data;
+        // deletion of QueueElement* next will be handled by BlockingQueue destructor
     }
 };
 
