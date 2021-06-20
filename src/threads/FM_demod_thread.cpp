@@ -30,7 +30,13 @@ void* FM_demod_thread(void* args){
 	double y_1 = 0.0;		// y_1 means y[n-1], y1 means y[n+1]
 	// while(true){
 	for(int i = 0; i < 1000*8; i++){
-		complex<float>* data = in->pop(name)->data;
+		QueueElement<complex<float>>* popped = in->pop(3000);
+		if(popped == nullptr){
+			cout<<"[FM DEMOD]	time out!"<<endl;
+			return nullptr;
+		}
+
+		complex<float>* data = popped->data;
 		double* fm_demodulated1 = new double[chunk_size];
 		double* fm_demodulated2 = new double[chunk_size];
 		double* de_emphasized = new double[chunk_size];

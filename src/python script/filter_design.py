@@ -13,16 +13,19 @@ def filter2file(filename, filter):
 	file.close()
 
 
-filename = "./filters/stage_1_filter.txt"
+filename1 = "./filters/stage_1_filter_fft_100kHz.txt"
+filename2 = "./filters/stage_1_filter_h_100kHz.txt"
 
 f_bw = 100000
-n_taps = 512 
+n_taps = 8
 Fs = 1.44e6
 
 cutoff = f_bw
 trans_width = 10000
 
+# lpf = signal.remez(n_taps, [0, cutoff, cutoff+(Fs/2-f_bw), Fs/2], [1,0], Hz=Fs)
 lpf = signal.remez(n_taps, [0, cutoff, cutoff+trans_width, Fs/2], [1,0], Hz=Fs)
-lpf_fft = np.fft.fft(lpf, 512)
+lpf_fft = np.fft.fft(lpf*signal.windows.hann(n_taps), 512)
 
-filter2file(filename, lpf_fft)
+filter2file(filename1, lpf_fft)
+filter2file(filename2, lpf)

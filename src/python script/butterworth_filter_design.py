@@ -13,6 +13,7 @@ def filter2file(filename, filter):
 
 # Fs = 2.4e6
 Fs = 1.44e6
+# Fs = 1.2e6
 
 b,a = signal.butter(2, 100000, btype='low', analog=False, fs=Fs, output='ba')
 
@@ -22,6 +23,7 @@ filter2file(b_filename, b)
 filter2file(a_filename, a)
 
 Fs = 480000
+# Fs = 240000
 
 b,a = signal.butter(4, 15000, btype='low', analog=False, fs=Fs, output='ba')
 

@@ -19,9 +19,9 @@ void* mono_audio_extraction_thread_diffeq(void* args){
 	BlockingQueue<double>* out = params->out;
 
 	double Fs = params->sample_rate;
-    double audio_freq = 44100;
+    double audio_freq = 48000;
 
-    int dec_rate = 10;
+    int dec_rate = params->dec_rate;
 
 	int chunk_size = params->chunk_size;
 
@@ -48,7 +48,17 @@ void* mono_audio_extraction_thread_diffeq(void* args){
     // while(true){
     double* extracted = new double[chunk_size];
     for(int i = 0; i < 1000*8; i++){
-        double* data = in->pop(name)->data;
+        QueueElement<double>* popped = in->pop(3000);
+        if(popped == nullptr){
+            cout<<"[MONO EXTRACT]   time out!"<<endl;
+            return nullptr;
+        }
+        double* data = popped->data;
+
+        // if(data == nullptr){
+        //     cout<<"[MONO EXTRACT]   time out!"<<endl;
+        //     return nullptr;
+        // }
         // apply filter here
 
         double* sig_filtered = new double[chunk_size];

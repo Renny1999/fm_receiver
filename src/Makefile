@@ -7,7 +7,8 @@ all: main.cpp ./utils/utils.cpp ./threads/capture_thread.cpp  ./threads/stage_1_
 	$(CC)  -pthread -o ../target/main $? $(SOAPYFLAGS) $(FFTWFFLAGS)
 
 test: 
-	$(CC) -pthread -o ../target/test test.cpp ./utils/BlockingQueue.cpp ./threads/threads.cpp
+	$(CC) -pthread -o ../target/test test.cpp ./utils/BlockingQueue.cpp ./utils/*.cpp
+	../target/test
 
 run: 
 	make reset || true

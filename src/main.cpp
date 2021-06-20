@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
+#include <chrono>
 #include <map>
 #include <iostream>
 #include <fstream>
@@ -18,12 +19,16 @@
 
 
 using namespace std;
+using namespace chrono;
 
 int CHUNK_SIZE = 512;
 int Fs = 1.44e6;
 // int Fs = 2.4e6;
 
 int main(){
+
+    auto start_time = high_resolution_clock::now();
+
     SoapySDR::KwargsList results = SoapySDR::Device::enumerate();
     SoapySDR::Kwargs::iterator it;
     BlockingQueue<complex<float>> capture_out;  // same as filter_in
@@ -42,11 +47,13 @@ int main(){
     stage_1_filtering_args stage_1_config;
         stage_1_config.in = &capture_out;
         stage_1_config.out = &stage1_out;
-        stage_1_config.ntaps = 512;
-        stage_1_config.filter_path_fft = "./filters/stage_1_filter.txt";
+        stage_1_config.ntaps = 8;
+        stage_1_config.filter_path_fft = "./filters/stage_1_filter_fft_100kHz.txt";
+        stage_1_config.filter_path_h = "./filters/stage_1_filter_h_100kHz.txt";
         stage_1_config.filter_path_diffeq_a = "./filters/100kHz_lp_a.txt";
         stage_1_config.filter_path_diffeq_b = "./filters/100kHz_lp_b.txt";
         stage_1_config.signal_bw = 200*1000;    // 200kHz
+        stage_1_config.dec_rate = 3;
         stage_1_config.sample_rate = Fs;
         stage_1_config.chunk_size = CHUNK_SIZE;
 
@@ -58,7 +65,7 @@ int main(){
         fm_demod_config.out2 = &fm_demod_out2;
         fm_demod_config.out3 = &fm_demod_out3;
         fm_demod_config.chunK_size = CHUNK_SIZE;
-        fm_demod_config.sample_rate = 480000;   
+        fm_demod_config.sample_rate = 480e3;   
 
     m_audio_extract_args m_audio_extract_config;
         m_audio_extract_config.in = &fm_demod_out1;
@@ -67,15 +74,18 @@ int main(){
         m_audio_extract_config.filter_path_diffeq_a = "./filters/15kHz_lp_a.txt";
         m_audio_extract_config.filter_path_diffeq_b = "./filters/15kHz_lp_b.txt";
         m_audio_extract_config.signal_bw = 44.1*1000;    
-        m_audio_extract_config.sample_rate = 480000;
+        m_audio_extract_config.sample_rate = 480e3;
+        m_audio_extract_config.dec_rate = 10;
         m_audio_extract_config.chunk_size = CHUNK_SIZE;
       
     pthread_t capture_id;
     pthread_create(&capture_id, NULL, &capture_thread, &capture_config);
 
     pthread_t stage_1_id;
-    pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_diffeq, &stage_1_config);
+    // pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_diffeq_ll, &stage_1_config);
+    // pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_diffeq_dq, &stage_1_config);
     // pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_fft, &stage_1_config);
+    pthread_create(&stage_1_id, NULL, &stage_1_filtering_thread_h, &stage_1_config);
 
     pthread_t fm_demod_id;
     pthread_create(&fm_demod_id, NULL, &FM_demod_thread, &fm_demod_config);
@@ -97,6 +107,7 @@ int main(){
         perror("Error");
     }
 
+    auto stop_time = high_resolution_clock::now();
     cout<<"[Main]   done waiting"<<endl;
     for(int j = 0; j < 1000*8; j++){
         cout<<j<<endl;
@@ -115,6 +126,8 @@ int main(){
     }
     fclose(fp);
     cout<<"saved"<<endl;
+    auto duration = duration_cast<microseconds>(stop_time-start_time);
+    cout<<"time spent: "<<duration.count()<<" us"<<endl;
 
     return 0;
 }

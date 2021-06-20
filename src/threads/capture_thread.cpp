@@ -98,6 +98,7 @@ void* capture_thread(void* args){
             // fprintf(fp, "%f,%f\n", sum.real(), sum.imag());
         // }
         out->push((complex<float>*) data);
+        cout<<"pushed data"<<endl;
     }
 
     // fclose(fp);
