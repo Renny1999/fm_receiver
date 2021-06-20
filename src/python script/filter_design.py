@@ -29,3 +29,5 @@ lpf_fft = np.fft.fft(lpf*signal.windows.hann(n_taps), 512)
 
 filter2file(filename1, lpf_fft)
 filter2file(filename2, lpf)
+
+bpf = signal.remez(n_taps, [0, 16000, 18000, 20000, 22000], [1,0,1], Hz=Fs)

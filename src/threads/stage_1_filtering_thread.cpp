@@ -155,12 +155,12 @@ void* stage_1_filtering_thread_diffeq_ll(void* args){
     vector<complex<float>>* b;
 
     // read in diffeq "a" coefficients 
-    a = read_butterworth_complex_coeffs(params->filter_path_diffeq_a);
+    a = read_complex_coeffs(params->filter_path_diffeq_a);
 
     // read in diffeq "b" coefficients 
-    b = read_butterworth_complex_coeffs(params->filter_path_diffeq_b);
+    b = read_complex_coeffs(params->filter_path_diffeq_b);
 
-    printf("[STAGE 1]   initialized filter difference eqution\n");
+    printf("[STAGE 1]   initialized filter difference equation\n");
 
 
     Deque<complex<float>> x_hist(b->size());  // all initialized to 0, x[n] ~ x[n-(b.size()-1)]
@@ -246,10 +246,10 @@ void* stage_1_filtering_thread_diffeq_dq(void* args){
     vector<complex<float>>* b;
 
     // read in diffeq "a" coefficients 
-    a = read_butterworth_complex_coeffs(params->filter_path_diffeq_a);
+    a = read_complex_coeffs(params->filter_path_diffeq_a);
 
     // read in diffeq "b" coefficients 
-    b = read_butterworth_complex_coeffs(params->filter_path_diffeq_b);
+    b = read_complex_coeffs(params->filter_path_diffeq_b);
 
     printf("[STAGE 1]   initialized filter difference eqution\n");
 
@@ -319,8 +319,6 @@ void* stage_1_filtering_thread_h(void* args){
     string name = "STAGE 1";
     int c = 0;
 
-
-
     stage_1_filtering_args* params = (stage_1_filtering_args*) args;
 
     // set up parameters
@@ -332,7 +330,7 @@ void* stage_1_filtering_thread_h(void* args){
 
     int dec_rate = params->dec_rate;
 
-    vector<complex<float>>* h = read_butterworth_complex_coeffs(params->filter_path_h);
+    vector<complex<float>>* h = read_complex_coeffs(params->filter_path_h);
     printf("[%s]    finished setting up filter coeffs\n", name.c_str());
     for(int i = 0; i < h->size(); i++){
         cout<<(*h)[i]<<endl;
@@ -345,7 +343,7 @@ void* stage_1_filtering_thread_h(void* args){
     int counter = 0;
     int index = 0;
     while(true){
-        QueueElement<complex<float>>* popped = in->pop(3000);
+        QueueElement<complex<float>>* popped = in->pop(3000, name);
         printf("[STAGE 1]   %d\n", c);
         c++;
 
@@ -378,24 +376,5 @@ void* stage_1_filtering_thread_h(void* args){
             }
             counter = (counter+1) % dec_rate;
         }
-
-
-        // for(int i = 0; i < chunk_size; i++){
-        //     if(counter == 0){      // if the sample is the one to be taken
-        //         decimated[index] = filtered[i];
-        //         // the next index at which sample will be stored
-        //         index = (index+1) % chunk_size;
-        //         if(index == 0){    // if the next index is 0, this buffer is full, send to queue
-        //         }
-        //     }
-        //     counter = (counter+1) % dec_rate;
-        // }
-
-        
-
-    }
-
-
-
-
-}
+    }// end while
+}// end stage_1_filtering_thread

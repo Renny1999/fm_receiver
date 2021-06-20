@@ -29,10 +29,10 @@ void* mono_audio_extraction_thread_diffeq(void* args){
     vector<float>* b;
 
     // read in diffeq "a" coefficients 
-    a = read_butterworth_float_coeffs(params->filter_path_diffeq_a);
+    a = read_float_coeffs(params->filter_path_diffeq_a);
 
     // read in diffeq "b" coefficients 
-    b = read_butterworth_float_coeffs(params->filter_path_diffeq_b);
+    b = read_float_coeffs(params->filter_path_diffeq_b);
 
     printf("[MONO EXTRACT]   initialized filter difference eqution\n");
 
@@ -47,19 +47,14 @@ void* mono_audio_extraction_thread_diffeq(void* args){
 
     double* extracted = new double[chunk_size];
     while(true){
-        QueueElement<double>* popped = in->pop(3000, name);
+        QueueElement<double>* popped = in->pop(10000, name);
         if(popped == nullptr){
             cout<<"[MONO EXTRACT]   time out!"<<endl;
             return nullptr;
         }
         double* data = popped->data;
 
-        // if(data == nullptr){
-        //     cout<<"[MONO EXTRACT]   time out!"<<endl;
-        //     return nullptr;
-        // }
         // apply filter here
-
         double* sig_filtered = new double[chunk_size];
 
         for(int data_index = 0; data_index < chunk_size; data_index++){

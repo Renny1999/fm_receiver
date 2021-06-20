@@ -2,7 +2,7 @@ CC = g++
 SOAPYFLAGS = -lSoapySDR
 FFTWFFLAGS = -lfftw3f
 
-all: main.cpp ./utils/utils.cpp ./threads/capture_thread.cpp  ./threads/stage_1_filtering_thread.cpp ./threads/FM_demod_thread.cpp ./threads/mono_audio_extraction_thread.cpp
+all: main.cpp ./utils/utils.cpp ./threads/*thread.cpp
 	clear
 	$(CC)  -pthread -o ../target/main $? $(SOAPYFLAGS) $(FFTWFFLAGS)
 
@@ -17,3 +17,4 @@ run:
 
 reset:
 	rm ./output/exp/*
+	rm ./log.txt || true

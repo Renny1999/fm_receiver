@@ -50,7 +50,7 @@ void* FM_demod_thread(void* args){
 		}
 		
 		/* add a second channel that takes out fm_demodulated */
-		// out2->push(fm_demodulated1);
+		out2->push(fm_demodulated1);
 		// out3->push(fm_demodulated2);
 
 		// apply de_emphasis filter

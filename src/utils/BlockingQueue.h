@@ -63,7 +63,7 @@ template <class T>
 QueueElement<T>* BlockingQueue<T>::pop(string owner){
     pthread_mutex_lock(&access_mutex);
     while(this->size == 0){
-        printf("[%s]    blocking\n", owner.c_str());
+        // printf("[%s]    blocking\n", owner.c_str());
         pthread_cond_wait(&non_empty_cond, &access_mutex);
     }
 
@@ -103,7 +103,7 @@ QueueElement<T>* BlockingQueue<T>::pop(int timeInMs, string name){
 
     pthread_mutex_lock(&access_mutex);
     while(this->size == 0){
-        printf("[%s]    Blocking\n", name.c_str());
+        // printf("[%s]    Blocking\n", name.c_str());
         int res = pthread_cond_timedwait(&non_empty_cond, &access_mutex, &ts);
         if(res == ETIMEDOUT){
             return nullptr;

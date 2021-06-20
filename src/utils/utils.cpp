@@ -82,7 +82,7 @@ void* elementwise_multi_sum(void* args){
 	return nullptr;
 }
 
-vector<complex<float>>* read_butterworth_complex_coeffs(string filepath){
+vector<complex<float>>* read_complex_coeffs(string filepath){
 	ifstream file;
 	file.open(filepath);
 
@@ -105,7 +105,7 @@ vector<complex<float>>* read_butterworth_complex_coeffs(string filepath){
 	return vec;
 }
 
-vector<float>* read_butterworth_float_coeffs(string filepath){
+vector<float>* read_float_coeffs(string filepath){
 	ifstream file;
 	file.open(filepath);
 

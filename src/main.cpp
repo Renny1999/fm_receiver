@@ -16,6 +16,7 @@
 #include "./threads/stage_1_filtering_thread.h"
 #include "./threads/FM_demod_thread.h"
 #include "./threads/mono_audio_extraction_thread.h"
+#include "./threads/pilot_extraction_thread.h"
 
 
 using namespace std;
@@ -27,7 +28,6 @@ int Fs = 1.44e6;
 
 int main(){
 
-    auto start_time = high_resolution_clock::now();
 
     SoapySDR::KwargsList results = SoapySDR::Device::enumerate();
     SoapySDR::Kwargs::iterator it;
@@ -37,6 +37,9 @@ int main(){
     BlockingQueue<double> fm_demod_out2;         // same as pilot_extraction_thread_in
     BlockingQueue<double> fm_demod_out3;         // same as LRdiff_extraction_thread_in
     BlockingQueue<double> mono_audio_extraction_out;
+    
+    // second path
+    BlockingQueue<complex<double>> pilot_extraction_out;
 
     capture_args capture_config;
         capture_config.sample_rate = Fs;
@@ -77,7 +80,18 @@ int main(){
         m_audio_extract_config.sample_rate = 480e3;
         m_audio_extract_config.dec_rate = 10;
         m_audio_extract_config.chunk_size = CHUNK_SIZE;
-      
+    
+    pilot_extract_args pilot_extract_config;
+        pilot_extract_config.in = &fm_demod_out2;
+        pilot_extract_config.out = &pilot_extraction_out;
+        pilot_extract_config.filter_path_diffeq_a = "./filters/18kHz_20kHz_bp_a.txt";
+        pilot_extract_config.filter_path_diffeq_b = "./filters/18kHz_20kHz_bp_b.txt";
+        pilot_extract_config.sample_rate = 480e3;
+        pilot_extract_config.chunk_size = CHUNK_SIZE;
+        pilot_extract_config.dec_rate = 5;
+        pilot_extract_config.taps = 64;
+
+    auto start_time = high_resolution_clock::now();
     pthread_t capture_id;
     pthread_create(&capture_id, NULL, &capture_thread, &capture_config);
 
@@ -93,11 +107,14 @@ int main(){
     pthread_t mono_audio_extraction_id;
     pthread_create(&mono_audio_extraction_id, NULL, &mono_audio_extraction_thread_diffeq, &m_audio_extract_config);
 
+    pthread_t pilot_extraction_id;
+    pthread_create(&pilot_extraction_id, NULL, &pilot_extraction_thread_diffeq, &pilot_extract_config);
 
     pthread_join(capture_id, NULL);
     pthread_join(stage_1_id, NULL);
     pthread_join(fm_demod_id, NULL);
     pthread_join(mono_audio_extraction_id, NULL);
+    pthread_join(pilot_extraction_id, NULL);
 
     FILE *fp;
     // string filename = "./output/filtered_result.txt";
@@ -110,7 +127,7 @@ int main(){
     auto stop_time = high_resolution_clock::now();
     cout<<"[Main]   done waiting"<<endl;
     for(int j = 0; j < 1000*8; j++){
-        cout<<j<<endl;
+        printf("[MAIN]  %d\n", j);
         // complex<float>* buffer = stage1_out.pop(3000)->data;
         QueueElement<double>* e = mono_audio_extraction_out.pop(3000);
         if(e == nullptr){
@@ -126,8 +143,8 @@ int main(){
     }
     fclose(fp);
     cout<<"saved"<<endl;
-    auto duration = duration_cast<microseconds>(stop_time-start_time);
-    cout<<"time spent: "<<duration.count()<<" us"<<endl;
+    auto duration = duration_cast<milliseconds>(stop_time-start_time);
+    cout<<"time spent: "<<duration.count()<<" ms"<<endl;
 
     return 0;
 }

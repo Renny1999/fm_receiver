@@ -32,3 +32,9 @@ a_filename = "./filters/15Hz_lp_a.txt"
 filter2file(b_filename, b)
 filter2file(a_filename, a)
 
+b_filename = "./filters/18kHz_20kHz_bp_b.txt"
+a_filename = "./filters/18kHz_20kHz_bp_a.txt"
+b,a = signal.butter(3, [17.5e3, 20.5e3], btype='band', fs=Fs)
+filter2file(b_filename, b)
+filter2file(a_filename, a)
+
