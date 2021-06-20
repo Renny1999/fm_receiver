@@ -15,6 +15,9 @@
 using namespace std;
 
 void* capture_thread(void* args){
+    
+    string name = "CAPTURE";
+
     sleep(1);
     capture_args* capture_config = (capture_args*) args;
     BlockingQueue<complex<float>>* out = capture_config->out;
@@ -98,7 +101,6 @@ void* capture_thread(void* args){
             // fprintf(fp, "%f,%f\n", sum.real(), sum.imag());
         // }
         out->push((complex<float>*) data);
-        cout<<"pushed data"<<endl;
     }
 
     // fclose(fp);

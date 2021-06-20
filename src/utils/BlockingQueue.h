@@ -37,7 +37,7 @@ class BlockingQueue{
     pthread_cond_t non_empty_cond;   // use this when the queue is empty
 
     QueueElement<T>* pop(string owner = "");
-    QueueElement<T>* pop(int timeout);
+    QueueElement<T>* pop(int timeout, string owner = "");
     // void push(std::complex<float>* buffer);
     void push(T* buffer);
 
@@ -90,7 +90,7 @@ QueueElement<T>* BlockingQueue<T>::pop(string owner){
 
 // times out after timeInMs if the queue is empty. returns nullptr
 template <class T>
-QueueElement<T>* BlockingQueue<T>::pop(int timeInMs){
+QueueElement<T>* BlockingQueue<T>::pop(int timeInMs, string name){
 
     struct timeval tv;
     struct timespec ts;
@@ -103,7 +103,7 @@ QueueElement<T>* BlockingQueue<T>::pop(int timeInMs){
 
     pthread_mutex_lock(&access_mutex);
     while(this->size == 0){
-        cout<<"Blocking"<<endl;
+        printf("[%s]    Blocking\n", name.c_str());
         int res = pthread_cond_timedwait(&non_empty_cond, &access_mutex, &ts);
         if(res == ETIMEDOUT){
             return nullptr;

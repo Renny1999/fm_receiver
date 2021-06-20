@@ -28,9 +28,9 @@ void* FM_demod_thread(void* args){
 
 	complex<float> last(0.0, 0.0);
 	double y_1 = 0.0;		// y_1 means y[n-1], y1 means y[n+1]
-	// while(true){
-	for(int i = 0; i < 1000*8; i++){
-		QueueElement<complex<float>>* popped = in->pop(3000);
+
+	while(true){
+		QueueElement<complex<float>>* popped = in->pop(3000, name);
 		if(popped == nullptr){
 			cout<<"[FM DEMOD]	time out!"<<endl;
 			return nullptr;

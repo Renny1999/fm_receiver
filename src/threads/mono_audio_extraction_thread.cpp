@@ -45,10 +45,9 @@ void* mono_audio_extraction_thread_diffeq(void* args){
     int counter = 0;    // every dec_rate sample, the sample is saved
     int index = 0;      // goes from 0 to chunk_size-1
 
-    // while(true){
     double* extracted = new double[chunk_size];
-    for(int i = 0; i < 1000*8; i++){
-        QueueElement<double>* popped = in->pop(3000);
+    while(true){
+        QueueElement<double>* popped = in->pop(3000, name);
         if(popped == nullptr){
             cout<<"[MONO EXTRACT]   time out!"<<endl;
             return nullptr;

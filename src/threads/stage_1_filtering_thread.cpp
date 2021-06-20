@@ -358,29 +358,38 @@ void* stage_1_filtering_thread_h(void* args){
 
         complex<float>* filtered = new complex<float>[chunk_size];
         for(int i = 0; i < chunk_size; i++){
-
-            complex<float> sum(0,0);
             x_hist.push_front(data[i]);
-            Node<complex<float>>* temp = x_hist.head;
-            for(int j = 0; j < taps; j++){
-                sum += (*h)[j] * (temp->data);
-                temp = temp->next;
-            }
-            filtered[i] = sum;
-        }
+            // calculate y[n] only if it is the value needed
+            if(counter == 0){
+                // this sample has to be taken, so calculate y[n]
+                complex<float> sum(0,0);
+                Node<complex<float>>* temp = x_hist.head;
 
-        for(int i = 0; i < chunk_size; i++){
-            if(counter == 0){      // if the sample is the one to be taken
-                decimated[index] = filtered[i];
-                // the next index at which sample will be stored
+                for(int j = 0; j < taps; j++) {
+                    sum += (*h)[j] * (temp->data);
+                    temp = temp->next;
+                }
+                decimated[index] = sum;
                 index = (index+1) % chunk_size;
-                if(index == 0){    // if the next index is 0, this buffer is full, send to queue
+                if(index == 0){
                     out->push(decimated);
                     decimated = new complex<float>[chunk_size];
                 }
             }
             counter = (counter+1) % dec_rate;
         }
+
+
+        // for(int i = 0; i < chunk_size; i++){
+        //     if(counter == 0){      // if the sample is the one to be taken
+        //         decimated[index] = filtered[i];
+        //         // the next index at which sample will be stored
+        //         index = (index+1) % chunk_size;
+        //         if(index == 0){    // if the next index is 0, this buffer is full, send to queue
+        //         }
+        //     }
+        //     counter = (counter+1) % dec_rate;
+        // }
 
         
 
