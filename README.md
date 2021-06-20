@@ -17,10 +17,10 @@ Compiling the Code: <br />
   * -lfftw3f  (needed to use fftw3's float version)
 
 TODOs: <br />
-* [SOLVED] The dec_rate for mono audio extraction is 4.5, which was floored down to 4
+* [x] The dec_rate for mono audio extraction is 4.5, which was floored down to 4
   * this can cause audio to sound incorrect, so maybe perform interpolation then decimate?
   * SOLVED by using sample rates and decimation rates to perfectly achieve 48kHz sample frequency
-* [?] complex number multiplication in stage_1_filtering_thread is more expensive than simply mulplying by a double
+* [ ] complex number multiplication in stage_1_filtering_thread is more expensive than simply mulplying by a double
   * we know the coefficients in the butterworth filter difference equation are all real, so maybe take advantage of that?
 
 Notes: <br />
