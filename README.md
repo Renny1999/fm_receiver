@@ -37,7 +37,7 @@ Notes: <br />
     2. [NOISY] filtering in Fourier domain: used fftw for FFT and iFFT:
        * the speed was decent, but the filtered signal ended up being fairly noisy due to the ripples caused by the FFT
     3. [SATISFACTORY] convolution with FIR filter impulse response:
-       * y[n] = h[0]x[n-j] + h[1]x[n-(j-1)] + ... + h[j]x[n]
+       * y[n] = h[0]x[n] + h[1]x[n-1] + ... + h[j]x[n-j]
        * this method does not require any previous y value to calculate y[n]
        * the program can skip the convolution process on samples that will be dropped during decimated without causing any inconvenience
          * this approach only requires 1/dec_rate convolutions, making it even faster than the FFT approach
