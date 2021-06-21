@@ -16,7 +16,7 @@ void* mono_audio_extraction_thread_diffeq(void* args){
 	m_audio_extract_args* params = (m_audio_extract_args*) args;
 	
 	BlockingQueue<double>* in = params->in;
-	BlockingQueue<double>* out = params->out;
+	BlockingQueue<float>* out = params->out;
 
 	double Fs = params->sample_rate;
     double audio_freq = 48000;
@@ -45,7 +45,7 @@ void* mono_audio_extraction_thread_diffeq(void* args){
     int counter = 0;    // every dec_rate sample, the sample is saved
     int index = 0;      // goes from 0 to chunk_size-1
 
-    double* extracted = new double[chunk_size];
+    float* extracted = new float[chunk_size];
     while(true){
         QueueElement<double>* popped = in->pop(10000, name);
         if(popped == nullptr){
@@ -81,13 +81,13 @@ void* mono_audio_extraction_thread_diffeq(void* args){
 
         for(int j = 0; j < chunk_size; j++){
             if(counter == 0){
-                extracted[index] = sig_filtered[j];
+                extracted[index] = float(sig_filtered[j]);
 
                 index = (index+1) % chunk_size;
 
                 if(index == 0){
                     out->push(extracted);
-                    extracted = new double[chunk_size];
+                    extracted = new float[chunk_size];
                 }
             }
             counter = (counter+1) % dec_rate;

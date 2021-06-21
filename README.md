@@ -42,4 +42,9 @@ Notes: <br />
        * This method does not require any previous y value to calculate y[n]
        * The program can skip the convolution process on samples that will be dropped during decimated without causing any inconvenience
          * This approach only requires 1/dec_rate convolutions, making it even faster than the FFT approach
+
+Worth Noting: <br />
+  * The filters used in the project are designed using scipy's signal library
+  * Lowpass filters are designed using "remez", and bandpass filters are designed using "butter"
+    * scipy's "butter" function might generate unstable filters when the order is high
                           

@@ -6,7 +6,10 @@
 #include <string>
 #include <vector>
 #include <deque>
+#include <chrono>
+
 #include <fftw3.h>
+
 
 #include "stage_1_filtering_thread.h"
 #include "../utils/utils.h"
@@ -16,6 +19,7 @@
 #include <fstream>
 
 using namespace std;
+using namespace chrono;
 
 // performs filtering using the fft method with remez filter
 void* stage_1_filtering_thread_fft(void* args){

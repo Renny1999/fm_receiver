@@ -5,6 +5,12 @@
 #include <map>
 #include <iostream>
 #include <fstream>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <string>
 
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Types.hpp>
@@ -27,8 +33,6 @@ int Fs = 1.44e6;
 // int Fs = 2.4e6;
 
 int main(){
-
-
     SoapySDR::KwargsList results = SoapySDR::Device::enumerate();
     SoapySDR::Kwargs::iterator it;
     BlockingQueue<complex<float>> capture_out;  // same as filter_in
@@ -36,7 +40,7 @@ int main(){
     BlockingQueue<double> fm_demod_out1;         // same as mono_audio_extraction_in
     BlockingQueue<double> fm_demod_out2;         // same as pilot_extraction_thread_in
     BlockingQueue<double> fm_demod_out3;         // same as LRdiff_extraction_thread_in
-    BlockingQueue<double> mono_audio_extraction_out;
+    BlockingQueue<float> mono_audio_extraction_out;
     
     // second path
     BlockingQueue<complex<double>> pilot_extraction_out;
@@ -50,7 +54,7 @@ int main(){
     stage_1_filtering_args stage_1_config;
         stage_1_config.in = &capture_out;
         stage_1_config.out = &stage1_out;
-        stage_1_config.ntaps = 8;
+        stage_1_config.ntaps = 12;
         stage_1_config.filter_path_fft = "./filters/stage_1_filter_fft_100kHz.txt";
         stage_1_config.filter_path_h = "./filters/stage_1_filter_h_100kHz.txt";
         stage_1_config.filter_path_diffeq_a = "./filters/100kHz_lp_a.txt";
@@ -59,8 +63,6 @@ int main(){
         stage_1_config.dec_rate = 3;
         stage_1_config.sample_rate = Fs;
         stage_1_config.chunk_size = CHUNK_SIZE;
-
-    
 
     FM_demod_args fm_demod_config;
         fm_demod_config.in = &stage1_out;
@@ -91,6 +93,54 @@ int main(){
         pilot_extract_config.dec_rate = 5;
         pilot_extract_config.taps = 64;
 
+    int server_fd, new_socket, valread;
+	int PORT = 4500;
+	struct sockaddr_in address;
+	int opt = 1;
+	int addrlen = sizeof(address);
+	
+	char buffer[1024] = {0};
+	
+	string msg = "hello from server";
+
+	server_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if(server_fd == 0){
+		cerr<<"failed to open socket"<<endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if (setsockopt(server_fd, SOL_SOCKET, 
+			SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))){
+		cerr<<"error setsockopt"<<endl;
+		exit(-1);
+	}
+
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_port = htons(PORT);
+
+	if(bind(server_fd, (struct sockaddr *) &address, sizeof(address))<0){
+		cerr<<"port binding failed"<<endl;
+		exit(-1);
+	}
+
+	if (listen(server_fd, 3) < 0){
+		cerr<<"error listening"<<endl;
+		exit(-1);
+	}
+
+	cout<<"listening"<<endl;
+	if ((new_socket = accept(
+						server_fd,
+						(struct sockaddr*) &address,
+						(socklen_t*) &addrlen))<0)
+	{
+		cerr<<"error accept"<<endl;
+		exit(-1);
+	}
+
+	cout<<"client connected"<<endl;
+
     auto start_time = high_resolution_clock::now();
     pthread_t capture_id;
     pthread_create(&capture_id, NULL, &capture_thread, &capture_config);
@@ -118,7 +168,7 @@ int main(){
 
     FILE *fp;
     // string filename = "./output/filtered_result.txt";
-    string filename = "./output/exp/audio.txt";
+    string filename = "./output/exp/audio_f.txt";
     fp = fopen(filename.c_str(),"w");
     if(fp == nullptr){
         perror("Error");
@@ -129,12 +179,12 @@ int main(){
     for(int j = 0; j < 1000*8; j++){
         printf("[MAIN]  %d\n", j);
         // complex<float>* buffer = stage1_out.pop(3000)->data;
-        QueueElement<double>* e = mono_audio_extraction_out.pop(3000);
+        QueueElement<float>* e = mono_audio_extraction_out.pop(3000);
         if(e == nullptr){
             cout<<"timed out and no more data"<<endl;
             break;
         }
-        double* buffer = e->data;
+        float* buffer = e->data;
         for(int i = 0; i < CHUNK_SIZE; i++){
             complex<float> num = buffer[i];
             fprintf(fp, "%f,%f\n", num.real(), num.imag());

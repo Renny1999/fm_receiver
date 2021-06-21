@@ -28,13 +28,13 @@ Fs = 480000
 b,a = signal.butter(4, 15000, btype='low', analog=False, fs=Fs, output='ba')
 
 b_filename = "./filters/15kHz_lp_b.txt"
-a_filename = "./filters/15Hz_lp_a.txt"
+a_filename = "./filters/15kHz_lp_a.txt"
 filter2file(b_filename, b)
 filter2file(a_filename, a)
 
 b_filename = "./filters/18kHz_20kHz_bp_b.txt"
 a_filename = "./filters/18kHz_20kHz_bp_a.txt"
-b,a = signal.butter(3, [17.5e3, 20.5e3], btype='band', fs=Fs)
+b,a = signal.butter(2, [17.5e3, 20.5e3], btype='band', fs=Fs)
 filter2file(b_filename, b)
 filter2file(a_filename, a)
 
