@@ -22,6 +22,10 @@ TODOs: <br />
   * SOLVED by using sample rates and decimation rates to perfectly achieve 48kHz sample frequency
 * [ ] Complex number multiplication in stage_1_filtering_thread is more expensive than simply mulplying by a double
   * We know the coefficients in the butterworth filter difference equation are all real, so maybe take advantage of that?
+* [ ] Work on the `LR_diff_extraction_thread.cpp`<br />
+  * [ ] Multiply the LR_diff_recovery signal with the pilot signal to move the L-R spectrum to the baseband
+  * [ ] Lowpass filter the resulting signal at 15kHz
+  * [ ] Decimate the signal to 48kHz 
 * [ ] Take care of memory leaks
 
 Notes: <br />
