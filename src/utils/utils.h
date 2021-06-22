@@ -21,4 +21,7 @@ std::vector<std::complex<double>>* read_complex_double_coeffs(std::string filena
 std::vector<float>* read_float_coeffs(std::string filename);
 std::vector<double>* read_double_coeffs(std::string filename);
 
+
+int16_t float2int16(float f);
+
 #endif

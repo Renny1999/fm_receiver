@@ -173,3 +173,12 @@ vector<double>* read_double_coeffs(string filepath){
 
 	return vec;
 }
+
+int16_t float2int16(float f){
+	float sample = f*32768*0.8;
+	if(sample > 32767) sample = 32767;
+	if(sample < -32768) sample = -32768;
+	int16_t integer = (int16_t) sample;
+
+	return integer;
+}

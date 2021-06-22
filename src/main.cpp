@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <vector>
 #include <chrono>
-#include <map>
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
@@ -24,6 +23,7 @@
 #include "./threads/mono_audio_extraction_thread.h"
 #include "./threads/pilot_extraction_thread.h"
 #include "./threads/LR_diff_recovery_thread.h"
+#include "./threads/LR_diff_extraction_thread.h"
 #include "./threads/networking_thread.h"
 
 
@@ -42,14 +42,15 @@ int main(){
     BlockingQueue<double> fm_demod_out1;         // same as mono_audio_extraction_in
     BlockingQueue<double> fm_demod_out2;         // same as pilot_extraction_thread_in
     BlockingQueue<double> fm_demod_out3;         // same as LRdiff_extraction_thread_in
-    BlockingQueue<float> mono_audio_extraction_out;
-    BlockingQueue<complex<double>> LR_diff_recovery_out;
+    BlockingQueue<double> mono_audio_extraction_out;
 
 
-    bool tcp = false;
+    bool tcp = true;
     // second path
+    BlockingQueue<complex<double>> LR_diff_recovery_out;
     BlockingQueue<complex<double>> pilot_extraction_out1;
     BlockingQueue<complex<double>> pilot_extraction_out2;
+    BlockingQueue<double> LR_diff_out;
 
     capture_args capture_config;
         capture_config.sample_rate = Fs;
@@ -116,9 +117,23 @@ int main(){
         LR_diff_config.sample_rate = 480000;
         LR_diff_config.filter_path_diffeq_a = "./filters/22kHz_54kHz_bp_a.txt";
         LR_diff_config.filter_path_diffeq_b = "./filters/22kHz_54kHz_bp_b.txt";
+    
+    LR_diff_extract_args LR_diff_ext_config;
+        LR_diff_ext_config.LR_diff = &LR_diff_recovery_out;
+        LR_diff_ext_config.pilot = &pilot_extraction_out2;
+        LR_diff_ext_config.out = &LR_diff_out;
+        LR_diff_ext_config.chunk_size = CHUNK_SIZE;
+        LR_diff_ext_config.dec_rate = 2;
+        LR_diff_ext_config.sample_rate = 480000/5;
+        LR_diff_ext_config.taps = 25;
+
+        LR_diff_ext_config.filter_path_h = "./filters/LR_diff_filter_h_15kHz.txt";
+
+
 
     networking_args networking_config;
-        networking_config.in = &mono_audio_extraction_out;
+        networking_config.LRsum = &mono_audio_extraction_out;
+        networking_config.LRdiff = &LR_diff_out;
         networking_config.chunk_size = CHUNK_SIZE;
 
 
@@ -194,8 +209,11 @@ int main(){
     pthread_t LR_diff_recovery_id;
     pthread_create(&LR_diff_recovery_id, NULL, &LR_diff_recovery_thread, &LR_diff_config);
 
+    pthread_t LR_diff_extraction_id;
+    pthread_create(&LR_diff_extraction_id, NULL, &LR_diff_extraction_thread, &LR_diff_ext_config);
+
     pthread_t networking_id;
-    // pthread_create(&networking_id, NULL, &networking_thread, &networking_config);
+    pthread_create(&networking_id, NULL, &networking_thread, &networking_config);
 
     pthread_join(capture_id, NULL);
     pthread_join(stage_1_id, NULL);
@@ -204,36 +222,37 @@ int main(){
     pthread_join(pilot_extraction_id1, NULL);
     pthread_join(pilot_extraction_id2, NULL);
     pthread_join(LR_diff_recovery_id, NULL);
-    // pthread_join(networking_id, NULL);
+    pthread_join(LR_diff_extraction_id, NULL);
+    pthread_join(networking_id, NULL);
 
-    FILE *fp;
-    // string filename = "./output/filtered_result.txt";
-    string filename = "./output/exp/audio_f.txt";
-    fp = fopen(filename.c_str(),"w");
-    if(fp == nullptr){
-        perror("Error");
-    }
+    // FILE *fp;
+    // // string filename = "./output/filtered_result.txt";
+    // string filename = "./output/exp/audio_f.txt";
+    // fp = fopen(filename.c_str(),"w");
+    // if(fp == nullptr){
+    //     perror("Error");
+    // }
 
-    auto stop_time = high_resolution_clock::now();
-    cout<<"[Main]   done waiting"<<endl;
-    for(int j = 0; j < 1000*8; j++){
-        printf("[MAIN]  %d\n", j);
-        // complex<float>* buffer = stage1_out.pop(3000)->data;
-        QueueElement<float>* e = mono_audio_extraction_out.pop(1000);
-        if(e == nullptr){
-            cout<<"timed out and no more data"<<endl;
-            break;
-        }
-        float* buffer = e->data;
-        for(int i = 0; i < CHUNK_SIZE; i++){
-            complex<float> num = buffer[i];
-            fprintf(fp, "%f,%f\n", num.real(), num.imag());
-        }
-    }
-    fclose(fp);
-    cout<<"saved"<<endl;
-    auto duration = duration_cast<milliseconds>(stop_time-start_time);
-    cout<<"time spent: "<<duration.count()<<" ms"<<endl;
+    // auto stop_time = high_resolution_clock::now();
+    // cout<<"[Main]   done waiting"<<endl;
+    // for(int j = 0; j < 1000*8; j++){
+    //     printf("[MAIN]  %d\n", j);
+    //     // complex<float>* buffer = stage1_out.pop(3000)->data;
+    //     QueueElement<double>* e = mono_audio_extraction_out.pop(1000);
+    //     if(e == nullptr){
+    //         cout<<"timed out and no more data"<<endl;
+    //         break;
+    //     }
+    //     double* buffer = e->data;
+    //     for(int i = 0; i < CHUNK_SIZE; i++){
+    //         complex<double> num = buffer[i];
+    //         fprintf(fp, "%f,%f\n", num.real(), num.imag());
+    //     }
+    // }
+    // fclose(fp);
+    // cout<<"saved"<<endl;
+    // auto duration = duration_cast<milliseconds>(stop_time-start_time);
+    // cout<<"time spent: "<<duration.count()<<" ms"<<endl;
 
     return 0;
 }

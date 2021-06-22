@@ -31,7 +31,6 @@ void* pilot_extraction_thread_h(void* args){
 	int counter = 0;
 	int index = 0;
 	FILE* fp;
-	fp = fopen("output/exp/pilot.txt", "w");
 	while(true){
 		QueueElement<double>* popped = in->pop(3000, name);
 		if(popped == nullptr){
@@ -52,7 +51,6 @@ void* pilot_extraction_thread_h(void* args){
 					temp = temp->next;
 				}
 				decimated[index] = complex<double>(sum, 0);
-				fprintf(fp, "%f, %f\n", sum, 0.0);
 				index = (index+1) % chunk_size;
 				
 				if(index == 0){
@@ -63,7 +61,6 @@ void* pilot_extraction_thread_h(void* args){
 			counter = (counter+1) % dec_rate;
 		}
 	}
-	fclose(fp);
 	return nullptr;
 }
 
@@ -96,9 +93,6 @@ void* pilot_extraction_thread_stage_1_diffeq(void* args){
 	complex<double>* decimated = new complex<double>[chunk_size];
 
 	double* sig_filtered = new double[chunk_size];
-
-	FILE* fp;
-	fp = fopen("output/exp/pilot1.txt", "w");
 
 	while(true){
 		QueueElement<double>* popped = in->pop(3000, name);
@@ -134,7 +128,6 @@ void* pilot_extraction_thread_stage_1_diffeq(void* args){
 
 			if(counter == 0){
                 decimated[index] = complex<double>(sig_filtered[i]*sig_filtered[i], 0.0);
-				fprintf(fp, "%f,%f\n", decimated[index].real(), decimated[index].imag());
                 index = (index+1) % chunk_size;
                 if(index == 0){
                     out->push(decimated);
@@ -144,8 +137,6 @@ void* pilot_extraction_thread_stage_1_diffeq(void* args){
             counter = (counter+1) % dec_rate;
 		}
 	}
-
-	fclose(fp);
 	return nullptr;
 }
 
@@ -173,9 +164,6 @@ void* pilot_extraction_thread_stage_2_diffeq(void* args){
 
 	complex<double> a0 = (*a)[0];
 	complex<double>* sig_filtered = new complex<double>[chunk_size];
-
-	FILE* fp;
-	fp = fopen("output/exp/pilot2.txt", "w");
 
 	while(true){
 		QueueElement<complex<double>>* popped = in->pop(3000, name);
@@ -208,12 +196,10 @@ void* pilot_extraction_thread_stage_2_diffeq(void* args){
 			y_hist.push_front(res);
 
 			sig_filtered[i] = res;
-			fprintf(fp, "%f,%f\n", res.real(), res.imag());
 		}
 		out->push(sig_filtered);
 		sig_filtered = new complex<double>[chunk_size];
 	}
 
-	fclose(fp);
 	return nullptr;
 }

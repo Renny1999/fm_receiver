@@ -29,3 +29,12 @@ lpf_fft = np.fft.fft(lpf*signal.windows.hann(n_taps), 512)
 
 filter2file(filename1, lpf_fft)
 filter2file(filename2, lpf)
+
+filename2 = "./filters/LR_diff_filter_h_15kHz.txt"
+f_bw = 15000
+n_taps = 25
+Fs = 480000/5
+cutoff = f_bw
+trans_width = 1000
+lpf = signal.remez(n_taps, [0, cutoff, cutoff+trans_width, Fs/2], [1,0], Hz=Fs)*signal.windows.hann(n_taps)
+filter2file(filename2, lpf)

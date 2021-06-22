@@ -9,6 +9,7 @@
 #include <cmath>
 
 #include "networking_thread.h"
+#include "../utils/utils.h"
 
 using namespace std;
 
@@ -16,48 +17,57 @@ void* networking_thread(void* args){
 	string name = "NETWORKING";
 	networking_args* params = (networking_args*) args;
 
-	BlockingQueue<float>* in = params->in;
+	BlockingQueue<double>* LRsum = params->LRsum;
+	BlockingQueue<double>* LRdiff = params->LRdiff;
 	int chunk_size = params->chunk_size;
 	int socket_fd = params->socket_fd;
 
 	int counter = 0;
 
-	float* data;
+	double* data1;
+	double* data2;
 	int buffer_index;
-
-	FILE* fp;
-	FILE* fp2;
-	FILE* fp3;
-	fp = fopen("output/exp/int_sample.txt", "w");
-	// fp2= fopen("output/exp/int_sample_b.txt", "w");
-	fp3= fopen("output/exp/int_sample_wb.txt", "wb");
 
 	float FLOAT_MIN = std::numeric_limits<float>::lowest();
 	char buffer[512] = {0};
+
 	while(true){
-		QueueElement<float>* popped = in->pop(3000, name);
-		if(popped == nullptr){
+		QueueElement<double>* popped1 = LRsum->pop(3000, name);
+		if(popped1 == nullptr){
+			printf("[%s]	timed out! exiting...\n", name.c_str());
+			break;
+		}
+		QueueElement<double>* popped2 = LRdiff->pop(3000, name);
+		if(popped2 == nullptr){
 			printf("[%s]	timed out! exiting...\n", name.c_str());
 			break;
 		}
 
-		data = popped->data;
+		data1 = popped1->data;
+		data2 = popped2->data;
 
 		for(int i = 0; i < chunk_size; i++){
-			float sample = data[i];
-			// float normalized = sample/max * 32767;
-			sample = sample*32768*0.8;
-			if(sample > 32767) sample = 32767;
-			if(sample < -32768) sample = -32768;
-			int16_t integer = (int16_t) sample;
-			fprintf(fp, "%f\n", data[i]);
-			// float normalized = sample/max;
-			// float normalized = sample;
-			// char* bytes = static_cast<char*>(static_cast<void*>(&normalized));
-			unsigned char* bytes = reinterpret_cast<unsigned char *>(&integer);
+			double LRsum_sample = data1[i];
+			double LRdiff_sample = data2[i];
+
+			float left = float(LRsum_sample + LRdiff_sample);
+			float right = float(LRsum_sample - LRdiff_sample);
+
+			int left_int = float2int16(left);
+			int right_int = float2int16(right);
+			unsigned char* left_bytes = reinterpret_cast<unsigned char *>(&left_int);
+			unsigned char* right_bytes = reinterpret_cast<unsigned char *>(&right_int);
 			
 			for(int j = 0; j < 2; j++){
-				buffer[buffer_index] = bytes[j];
+				buffer[buffer_index] = left_bytes[j];
+				buffer_index = (buffer_index+1)%512;
+				if(buffer_index == 0){
+					// send data out
+					send(socket_fd, &buffer, 512, 0);
+				}
+			}
+			for(int j = 0; j < 2; j++){
+				buffer[buffer_index] = right_bytes[j];
 				buffer_index = (buffer_index+1)%512;
 				if(buffer_index == 0){
 					// send data out
@@ -67,6 +77,6 @@ void* networking_thread(void* args){
 		}
 
 	}
-	fclose(fp);
+	// fclose(fp);
 	return nullptr;
 }

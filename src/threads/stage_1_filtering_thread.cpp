@@ -358,7 +358,6 @@ void* stage_1_filtering_thread_h(void* args){
         }
 
         data = popped->data;
-        complex<float>* filtered = new complex<float>[chunk_size];
         for(int i = 0; i < chunk_size; i++){
             x_hist.push_front(data[i]);
             // calculate y[n] only if it is the value needed

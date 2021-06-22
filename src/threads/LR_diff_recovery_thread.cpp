@@ -38,12 +38,6 @@ void* LR_diff_recovery_thread(void* args){
 	complex<double>* decimated = new complex<double>[chunk_size];
 	complex<double>* sig_filtered = new complex<double>[chunk_size];
 
-	FILE* orig;
-	FILE* fp;
-	// fp = fopen("output/exp/LRdiff_bandpass.txt", "w");
-	// orig = fopen("output/exp/before_banpass.txt", "w");
-
-
 	int c = 0;
 	while(true)	{
 		printf("[%s]	%d\n", name.c_str(), c);
@@ -59,7 +53,6 @@ void* LR_diff_recovery_thread(void* args){
 
 		for(int i = 0; i < chunk_size; i++){
 			double d = data[i];
-			// fprintf(orig, "%f,%f\n", d, 0.0);
 			double x_sum = 0;
 			double y_sum = 0;
 
@@ -86,7 +79,6 @@ void* LR_diff_recovery_thread(void* args){
 
 			if(counter == 0){
                 decimated[index] = sig_filtered[i];
-				// fprintf(fp, "%f,%f\n", decimated[index].real(), decimated[index].imag());
                 index = (index+1) % chunk_size;
                 if(index == 0){
                     out->push(decimated);
@@ -97,7 +89,5 @@ void* LR_diff_recovery_thread(void* args){
 		}
 	}// end while
 
-	// fclose(fp);
-	// fclose(orig);
 	return nullptr;
 }

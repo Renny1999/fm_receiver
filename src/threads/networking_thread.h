@@ -12,7 +12,8 @@
 #include "../utils/BlockingQueue.h"
 
 struct networking_args{
-	BlockingQueue<float>* in;
+	BlockingQueue<double>* LRsum;
+	BlockingQueue<double>* LRdiff;
 	int socket_fd;	
 	int chunk_size;
 };

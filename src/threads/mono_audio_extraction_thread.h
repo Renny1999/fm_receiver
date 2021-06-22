@@ -7,7 +7,7 @@
 
 struct m_audio_extract_args{
     BlockingQueue<double>* in; 
-    BlockingQueue<float>* out; 
+    BlockingQueue<double>* out; 
     std::string filter_path_fft;
     std::string filter_path_diffeq_a;
     std::string filter_path_diffeq_b;
