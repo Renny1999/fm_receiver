@@ -32,9 +32,24 @@ a_filename = "./filters/15kHz_lp_a.txt"
 filter2file(b_filename, b)
 filter2file(a_filename, a)
 
-b_filename = "./filters/18kHz_20kHz_bp_b.txt"
-a_filename = "./filters/18kHz_20kHz_bp_a.txt"
+b_filename = "./filters/18kHz_20kHz_bp_b1.txt"
+a_filename = "./filters/18kHz_20kHz_bp_a1.txt"
 b,a = signal.butter(2, [17.5e3, 20.5e3], btype='band', fs=Fs)
 filter2file(b_filename, b)
 filter2file(a_filename, a)
 
+Fs = 480000/5
+
+b_filename = "./filters/18kHz_20kHz_bp_b2.txt"
+a_filename = "./filters/18kHz_20kHz_bp_a2.txt"
+b,a = signal.butter(3, [37e3, 39e3], btype='band', fs=Fs)
+filter2file(b_filename, b)
+filter2file(a_filename, a)
+
+
+Fs = 480000
+b_filename = "./filters/22kHz_54kHz_bp_b.txt"
+a_filename = "./filters/22kHz_54kHz_bp_a.txt"
+b,a = signal.butter(5, [21e3, 55e3], btype='band', fs=Fs)
+filter2file(b_filename, b)
+filter2file(a_filename, a)

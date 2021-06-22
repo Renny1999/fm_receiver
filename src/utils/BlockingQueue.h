@@ -18,11 +18,13 @@ struct QueueElement{
     T* data;
     QueueElement* next;
 
+    // deletes all the node and all of its successors
     ~QueueElement(){
-        if(this->data){
-            delete [](this->data);
+        if(this->next){
+            delete this->next;
         }
-        // deletion of QueueElement* next will be handled by BlockingQueue destructor
+
+        delete [](this->data);
     }
 };
 
@@ -165,12 +167,11 @@ int BlockingQueue<T>::getsize(){
 
 template <class T>
 BlockingQueue<T>::~BlockingQueue(){
-    //stub
     if(this->head){
-        delete head;
+        delete this->head;
     }
     if(this->tail){
-        delete tail;
+        delete this->tail;
     }
 }
 

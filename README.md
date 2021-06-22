@@ -42,6 +42,12 @@ Notes: <br />
        * This method does not require any previous y value to calculate y[n]
        * The program can skip the convolution process on samples that will be dropped during decimated without causing any inconvenience
          * This approach only requires 1/dec_rate convolutions, making it even faster than the FFT approach
+* Butterworth filters had better filter performance compared to the remez filters, but were slower to apply.
+  * Originally, I used `std::deque<T>` to keep track to the past values for x and y, but the `[]` operator for `std::deque<T>` seemed to be slow
+  * Since the difference equation method only need to accesss the past values for x and y incrementally, like `hist_x[0], hist_x[1], hist_x[2]...` where `hist_x[i] = x[n-i]`, the random access property in `std::deque<T>` was not necessary.
+  * I made a `Deque<T>` class implemented using Linked List, and instead of using `deque[i]`, I prepared a `temp` pointer pointing at the first element of the `Deque`, and moved it to `temp->next` in each iteration of the loop.
+  * This approach turned out to be faster than accessing past values using `deque[i]`, and made the use of butterworth filter difference equations viable in some occasions.
+  * Now that I think about it, an iterator for `std::deque<T>` might have achieved the same effect.
 
 Worth Noting: <br />
   * The filters used in the project are designed using scipy's signal library

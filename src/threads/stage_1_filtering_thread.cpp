@@ -138,6 +138,7 @@ void* stage_1_filtering_thread_fft(void* args){
         
         delete []data;
     }
+    return nullptr;
 }
 
 // performs filtering using butterworth filter difference equations
@@ -159,10 +160,10 @@ void* stage_1_filtering_thread_diffeq_ll(void* args){
     vector<complex<float>>* b;
 
     // read in diffeq "a" coefficients 
-    a = read_complex_coeffs(params->filter_path_diffeq_a);
+    a = read_complex_float_coeffs(params->filter_path_diffeq_a);
 
     // read in diffeq "b" coefficients 
-    b = read_complex_coeffs(params->filter_path_diffeq_b);
+    b = read_complex_float_coeffs(params->filter_path_diffeq_b);
 
     printf("[STAGE 1]   initialized filter difference equation\n");
 
@@ -250,10 +251,10 @@ void* stage_1_filtering_thread_diffeq_dq(void* args){
     vector<complex<float>>* b;
 
     // read in diffeq "a" coefficients 
-    a = read_complex_coeffs(params->filter_path_diffeq_a);
+    a = read_complex_float_coeffs(params->filter_path_diffeq_a);
 
     // read in diffeq "b" coefficients 
-    b = read_complex_coeffs(params->filter_path_diffeq_b);
+    b = read_complex_float_coeffs(params->filter_path_diffeq_b);
 
     printf("[STAGE 1]   initialized filter difference eqution\n");
 
@@ -334,7 +335,7 @@ void* stage_1_filtering_thread_h(void* args){
 
     int dec_rate = params->dec_rate;
 
-    vector<complex<float>>* h = read_complex_coeffs(params->filter_path_h);
+    vector<complex<float>>* h = read_complex_float_coeffs(params->filter_path_h);
     printf("[%s]    finished setting up filter coeffs\n", name.c_str());
     for(int i = 0; i < h->size(); i++){
         cout<<(*h)[i]<<endl;
@@ -357,7 +358,6 @@ void* stage_1_filtering_thread_h(void* args){
         }
 
         data = popped->data;
-
         complex<float>* filtered = new complex<float>[chunk_size];
         for(int i = 0; i < chunk_size; i++){
             x_hist.push_front(data[i]);

@@ -13,7 +13,7 @@ using namespace std;
 void* pilot_extraction_thread_h(void* args){
 	string name = "PILOT EXTRACTION";
 	// setup parameters 
-	pilot_extract_args* params = (pilot_extract_args*) args;
+	pilot_extract_args_1* params = (pilot_extract_args_1*) args;
 	BlockingQueue<double>* in = params->in;
 	BlockingQueue<complex<double>>* out = params->out;
 
@@ -67,10 +67,10 @@ void* pilot_extraction_thread_h(void* args){
 	return nullptr;
 }
 
-void* pilot_extraction_thread_diffeq(void* args){
+void* pilot_extraction_thread_stage_1_diffeq(void* args){
 	string name = "PILOT EXTRACTION";
 	// setup parameters 
-	pilot_extract_args* params = (pilot_extract_args*) args;
+	pilot_extract_args_1* params = (pilot_extract_args_1*) args;
 	BlockingQueue<double>* in = params->in;
 	BlockingQueue<complex<double>>* out = params->out;
 
@@ -81,8 +81,8 @@ void* pilot_extraction_thread_diffeq(void* args){
 
 	vector<complex<float>>* a;
 	vector<complex<float>>* b;
-	a = read_complex_coeffs(params->filter_path_diffeq_a);
-	b = read_complex_coeffs(params->filter_path_diffeq_b);
+	a = read_complex_float_coeffs(params->filter_path_diffeq_a);
+	b = read_complex_float_coeffs(params->filter_path_diffeq_b);
 
 	printf("[%s]	initialized filter difference equation\n", name.c_str());
 
@@ -98,7 +98,7 @@ void* pilot_extraction_thread_diffeq(void* args){
 	double* sig_filtered = new double[chunk_size];
 
 	FILE* fp;
-	fp = fopen("output/exp/pilot.txt", "w");
+	fp = fopen("output/exp/pilot1.txt", "w");
 
 	while(true){
 		QueueElement<double>* popped = in->pop(3000, name);
@@ -143,6 +143,75 @@ void* pilot_extraction_thread_diffeq(void* args){
             }
             counter = (counter+1) % dec_rate;
 		}
+	}
+
+	fclose(fp);
+	return nullptr;
+}
+
+void* pilot_extraction_thread_stage_2_diffeq(void* args){
+	string name = "PILOT EXTRACTION";
+	// setup parameters 
+	pilot_extract_args_2* params = (pilot_extract_args_2*) args;
+	BlockingQueue<complex<double>>* in = params->in;
+	BlockingQueue<complex<double>>* out = params->out;
+
+	int Fs = params->sample_rate;
+	int chunk_size = params->chunk_size;
+	int dec_rate = params->dec_rate;
+	int taps = params->taps;
+
+	vector<complex<double>>* a;
+	vector<complex<double>>* b;
+	a = read_complex_double_coeffs(params->filter_path_diffeq_a);
+	b = read_complex_double_coeffs(params->filter_path_diffeq_b);
+
+	printf("[%s]	initialized filter difference equation\n", name.c_str());
+
+	Deque<complex<double>> x_hist(b->size());
+	Deque<complex<double>> y_hist(a->size()-1);
+
+	complex<double> a0 = (*a)[0];
+	complex<double>* sig_filtered = new complex<double>[chunk_size];
+
+	FILE* fp;
+	fp = fopen("output/exp/pilot2.txt", "w");
+
+	while(true){
+		QueueElement<complex<double>>* popped = in->pop(3000, name);
+		if(popped == nullptr){
+			printf("[%s]	timed out! exiting thread...\n", name.c_str());
+			break;
+		}
+
+		complex<double>* data = popped->data;
+
+		for(int i = 0; i < chunk_size; i++){
+			complex<double> d = data[i];
+			complex<double> x_sum(0,0);
+			complex<double> y_sum(0,0);
+
+			x_hist.push_front(d);
+
+			Node<complex<double>>* temp = x_hist.head;
+			for(int coeff_index = 0; coeff_index < b->size(); coeff_index++){
+				x_sum+=temp->data * (*b)[coeff_index];
+				temp = temp->next;
+			}
+
+            temp = y_hist.head;
+            for(int coeff_index = 1; coeff_index < a->size(); coeff_index++){
+				y_sum+=temp->data * (*a)[coeff_index];
+                temp = temp->next;
+            }
+			complex<double> res = (x_sum-y_sum)/a0;
+			y_hist.push_front(res);
+
+			sig_filtered[i] = res;
+			fprintf(fp, "%f,%f\n", res.real(), res.imag());
+		}
+		out->push(sig_filtered);
+		sig_filtered = new complex<double>[chunk_size];
 	}
 
 	fclose(fp);

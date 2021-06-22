@@ -16,8 +16,9 @@ struct elementwise_multi_sum_args{
 };
 void* elementwise_multi_sum(void* args);
 
-std::vector<std::complex<float>>* read_complex_coeffs(std::string filename);
+std::vector<std::complex<float>>* read_complex_float_coeffs(std::string filename);
+std::vector<std::complex<double>>* read_complex_double_coeffs(std::string filename);
 std::vector<float>* read_float_coeffs(std::string filename);
-
+std::vector<double>* read_double_coeffs(std::string filename);
 
 #endif

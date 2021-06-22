@@ -81,15 +81,11 @@ void* capture_thread(void* args){
 
     sdr->activateStream(rx_stream, 0, 0, 0);
 
-    // 5. create a re-usable buffer for rx samples
-
-    // 6. receive some samples
-    // while(true){
-
     // FILE* fp;
     // fp = fopen("output/exp/unfiltered_1M.txt", "w");
-    for(int i = 0; i < 5000*8; i++){
-        printf("[CAPTURE]   %d\n", i);
+    for(int i = 0; i < 5000*2; i++){
+    // while(true){
+        // printf("[CAPTURE]   %d\n", i);
         complex<float>* data = new complex<float>[CHUNK_SIZE];
         void* buffs[] = {data};
         int flags;

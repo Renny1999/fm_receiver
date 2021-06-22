@@ -23,6 +23,8 @@
 #include "./threads/FM_demod_thread.h"
 #include "./threads/mono_audio_extraction_thread.h"
 #include "./threads/pilot_extraction_thread.h"
+#include "./threads/LR_diff_recovery_thread.h"
+#include "./threads/networking_thread.h"
 
 
 using namespace std;
@@ -41,9 +43,13 @@ int main(){
     BlockingQueue<double> fm_demod_out2;         // same as pilot_extraction_thread_in
     BlockingQueue<double> fm_demod_out3;         // same as LRdiff_extraction_thread_in
     BlockingQueue<float> mono_audio_extraction_out;
-    
+    BlockingQueue<complex<double>> LR_diff_recovery_out;
+
+
+    bool tcp = false;
     // second path
-    BlockingQueue<complex<double>> pilot_extraction_out;
+    BlockingQueue<complex<double>> pilot_extraction_out1;
+    BlockingQueue<complex<double>> pilot_extraction_out2;
 
     capture_args capture_config;
         capture_config.sample_rate = Fs;
@@ -83,63 +89,85 @@ int main(){
         m_audio_extract_config.dec_rate = 10;
         m_audio_extract_config.chunk_size = CHUNK_SIZE;
     
-    pilot_extract_args pilot_extract_config;
-        pilot_extract_config.in = &fm_demod_out2;
-        pilot_extract_config.out = &pilot_extraction_out;
-        pilot_extract_config.filter_path_diffeq_a = "./filters/18kHz_20kHz_bp_a.txt";
-        pilot_extract_config.filter_path_diffeq_b = "./filters/18kHz_20kHz_bp_b.txt";
-        pilot_extract_config.sample_rate = 480e3;
-        pilot_extract_config.chunk_size = CHUNK_SIZE;
-        pilot_extract_config.dec_rate = 5;
-        pilot_extract_config.taps = 64;
+    pilot_extract_args_1 pilot_extract_config1;
+        pilot_extract_config1.in = &fm_demod_out2;
+        pilot_extract_config1.out = &pilot_extraction_out1;
+        pilot_extract_config1.filter_path_diffeq_a = "./filters/18kHz_20kHz_bp_a1.txt";
+        pilot_extract_config1.filter_path_diffeq_b = "./filters/18kHz_20kHz_bp_b1.txt";
+        pilot_extract_config1.sample_rate = 480e3;
+        pilot_extract_config1.chunk_size = CHUNK_SIZE;
+        pilot_extract_config1.dec_rate = 5;
+        pilot_extract_config1.taps = 64;
 
-    int server_fd, new_socket, valread;
-	int PORT = 4500;
-	struct sockaddr_in address;
-	int opt = 1;
-	int addrlen = sizeof(address);
-	
-	char buffer[1024] = {0};
-	
-	string msg = "hello from server";
+    pilot_extract_args_2 pilot_extract_config2;
+        pilot_extract_config2.in = &pilot_extraction_out1;
+        pilot_extract_config2.out = &pilot_extraction_out2;
+        pilot_extract_config2.filter_path_diffeq_a = "./filters/18kHz_20kHz_bp_a2.txt";
+        pilot_extract_config2.filter_path_diffeq_b = "./filters/18kHz_20kHz_bp_b2.txt";
+        pilot_extract_config2.sample_rate = 480e3/5;
+        pilot_extract_config2.chunk_size = CHUNK_SIZE;
+        pilot_extract_config2.taps = 64;
 
-	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if(server_fd == 0){
-		cerr<<"failed to open socket"<<endl;
-		exit(EXIT_FAILURE);
-	}
+    LR_diff_recovery_args LR_diff_config;
+        LR_diff_config.in = &fm_demod_out3;
+        LR_diff_config.out = &LR_diff_recovery_out;
+        LR_diff_config.chunk_size = CHUNK_SIZE;
+        LR_diff_config.dec_rate = 5;
+        LR_diff_config.sample_rate = 480000;
+        LR_diff_config.filter_path_diffeq_a = "./filters/22kHz_54kHz_bp_a.txt";
+        LR_diff_config.filter_path_diffeq_b = "./filters/22kHz_54kHz_bp_b.txt";
 
-	if (setsockopt(server_fd, SOL_SOCKET, 
-			SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))){
-		cerr<<"error setsockopt"<<endl;
-		exit(-1);
-	}
+    networking_args networking_config;
+        networking_config.in = &mono_audio_extraction_out;
+        networking_config.chunk_size = CHUNK_SIZE;
 
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(PORT);
 
-	if(bind(server_fd, (struct sockaddr *) &address, sizeof(address))<0){
-		cerr<<"port binding failed"<<endl;
-		exit(-1);
-	}
+    if(tcp == true){
+        int server_fd, new_socket, valread;
+        int PORT = 4500;
+        struct sockaddr_in address;
+        int opt = 1;
+        int addrlen = sizeof(address);
 
-	if (listen(server_fd, 3) < 0){
-		cerr<<"error listening"<<endl;
-		exit(-1);
-	}
+        server_fd = socket(AF_INET, SOCK_STREAM, 0);
+        if(server_fd == 0){
+            cerr<<"failed to open socket"<<endl;
+            exit(EXIT_FAILURE);
+        }
 
-	cout<<"listening"<<endl;
-	if ((new_socket = accept(
-						server_fd,
-						(struct sockaddr*) &address,
-						(socklen_t*) &addrlen))<0)
-	{
-		cerr<<"error accept"<<endl;
-		exit(-1);
-	}
+        if (setsockopt(server_fd, SOL_SOCKET, 
+                SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))){
+            cerr<<"error setsockopt"<<endl;
+            exit(-1);
+        }
 
-	cout<<"client connected"<<endl;
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(PORT);
+
+        if(bind(server_fd, (struct sockaddr *) &address, sizeof(address))<0){
+            cerr<<"port binding failed"<<endl;
+            exit(-1);
+        }
+
+        if (listen(server_fd, 3) < 0){
+            cerr<<"error listening"<<endl;
+            exit(-1);
+        }
+
+        cout<<"listening"<<endl;
+        if ((new_socket = accept(
+                            server_fd,
+                            (struct sockaddr*) &address,
+                            (socklen_t*) &addrlen))<0)
+        {
+            cerr<<"error accept"<<endl;
+            exit(-1);
+        }
+
+        cout<<"client connected"<<endl;
+        networking_config.socket_fd = new_socket;
+    }
 
     auto start_time = high_resolution_clock::now();
     pthread_t capture_id;
@@ -157,14 +185,26 @@ int main(){
     pthread_t mono_audio_extraction_id;
     pthread_create(&mono_audio_extraction_id, NULL, &mono_audio_extraction_thread_diffeq, &m_audio_extract_config);
 
-    pthread_t pilot_extraction_id;
-    pthread_create(&pilot_extraction_id, NULL, &pilot_extraction_thread_diffeq, &pilot_extract_config);
+    pthread_t pilot_extraction_id1;
+    pthread_create(&pilot_extraction_id1, NULL, &pilot_extraction_thread_stage_1_diffeq, &pilot_extract_config1);
+
+    pthread_t pilot_extraction_id2;
+    pthread_create(&pilot_extraction_id2, NULL, &pilot_extraction_thread_stage_2_diffeq, &pilot_extract_config2);
+
+    pthread_t LR_diff_recovery_id;
+    pthread_create(&LR_diff_recovery_id, NULL, &LR_diff_recovery_thread, &LR_diff_config);
+
+    pthread_t networking_id;
+    // pthread_create(&networking_id, NULL, &networking_thread, &networking_config);
 
     pthread_join(capture_id, NULL);
     pthread_join(stage_1_id, NULL);
     pthread_join(fm_demod_id, NULL);
     pthread_join(mono_audio_extraction_id, NULL);
-    pthread_join(pilot_extraction_id, NULL);
+    pthread_join(pilot_extraction_id1, NULL);
+    pthread_join(pilot_extraction_id2, NULL);
+    pthread_join(LR_diff_recovery_id, NULL);
+    // pthread_join(networking_id, NULL);
 
     FILE *fp;
     // string filename = "./output/filtered_result.txt";
@@ -179,7 +219,7 @@ int main(){
     for(int j = 0; j < 1000*8; j++){
         printf("[MAIN]  %d\n", j);
         // complex<float>* buffer = stage1_out.pop(3000)->data;
-        QueueElement<float>* e = mono_audio_extraction_out.pop(3000);
+        QueueElement<float>* e = mono_audio_extraction_out.pop(1000);
         if(e == nullptr){
             cout<<"timed out and no more data"<<endl;
             break;
@@ -188,7 +228,6 @@ int main(){
         for(int i = 0; i < CHUNK_SIZE; i++){
             complex<float> num = buffer[i];
             fprintf(fp, "%f,%f\n", num.real(), num.imag());
-            // fprintf(fp, "%f\n", num.real());
         }
     }
     fclose(fp);

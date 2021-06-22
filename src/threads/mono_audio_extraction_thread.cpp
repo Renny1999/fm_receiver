@@ -94,7 +94,7 @@ void* mono_audio_extraction_thread_diffeq(void* args){
         }
 
         // contents of data no longer needed
-        delete []data;
+        // delete popped;
     }
 
     return nullptr;

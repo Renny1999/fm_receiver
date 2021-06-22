@@ -45,13 +45,13 @@ void* FM_demod_thread(void* args){
 		for(int i = 0; i < chunk_size; i++){
 			double res = arg(data[i]*conj(last));
 			fm_demodulated1[i] = res;
-			// fm_demodulated2[i] = res;
+			fm_demodulated2[i] = res;
 			last = data[i];
 		}
 		
 		/* add a second channel that takes out fm_demodulated */
 		out2->push(fm_demodulated1);
-		// out3->push(fm_demodulated2);
+		out3->push(fm_demodulated2);
 
 		// apply de_emphasis filter
 		for(int i = 0; i < chunk_size; i++){
