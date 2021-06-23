@@ -40,22 +40,23 @@ void* mono_audio_extraction_thread_diffeq(void* args){
     FixedSizedDeque<double> y_hist(a->size()-1);  // all initialized to 0, does not include y[n-1] ~
     float a0 = (*a)[0];
 
-    printf("[MONO EXTRACT]   a0 = %f\n", a0);
+    // set up buffers
+    double* extracted = new double[chunk_size];
+    double* sig_filtered = new double[chunk_size];  // reused buffer
+    double* data;
 
     int counter = 0;    // every dec_rate sample, the sample is saved
     int index = 0;      // goes from 0 to chunk_size-1
-
-    double* extracted = new double[chunk_size];
     while(true){
-        QueueElement<double>* popped = in->pop(10000, name);
+        QueueElement<double>* popped = in->pop(5000, name);
         if(popped == nullptr){
             cout<<"[MONO EXTRACT]   time out!"<<endl;
             return nullptr;
         }
-        double* data = popped->data;
+        data = popped->data;
 
         // apply filter here
-        double* sig_filtered = new double[chunk_size];
+        // sig_filtered = new double[chunk_size];
 
         for(int data_index = 0; data_index < chunk_size; data_index++){
             double d = data[data_index];
@@ -94,7 +95,7 @@ void* mono_audio_extraction_thread_diffeq(void* args){
         }
 
         // contents of data no longer needed
-        // delete popped;
+        delete popped;
     }
 
     return nullptr;

@@ -18,13 +18,11 @@ struct QueueElement{
     T* data;
     QueueElement* next;
 
-    // deletes all the node and all of its successors
     ~QueueElement(){
-        if(this->next){
-            delete this->next;
+        if(this->data){
+            delete [](this->data);
         }
-
-        delete [](this->data);
+        this->next = nullptr;
     }
 };
 
@@ -74,6 +72,7 @@ QueueElement<T>* BlockingQueue<T>::pop(string owner){
     if(!(popped)){
         cout<<"bad"<<endl;
     }
+    popped->next = nullptr;
 
     // adjust size
     this->size--;

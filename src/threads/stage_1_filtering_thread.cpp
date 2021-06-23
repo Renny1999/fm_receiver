@@ -332,16 +332,14 @@ void* stage_1_filtering_thread_h(void* args){
     double Fs = params->sample_rate;
     BlockingQueue<complex<float>>* in  = params->in;
     BlockingQueue<complex<float>>* out  = params->out;
-
     int dec_rate = params->dec_rate;
 
     vector<complex<float>>* h = read_complex_float_coeffs(params->filter_path_h);
     printf("[%s]    finished setting up filter coeffs\n", name.c_str());
-    for(int i = 0; i < h->size(); i++){
-        cout<<(*h)[i]<<endl;
-    }
+
     Deque<complex<float>> x_hist(taps); // x[n]->x[n-1]->x[n-2]->...x[n-taps+1]
 
+    // set up all the buffers used in this step
     complex<float>* data;
     complex<float>* decimated = new complex<float>[chunk_size];
 
@@ -379,5 +377,6 @@ void* stage_1_filtering_thread_h(void* args){
             }
             counter = (counter+1) % dec_rate;
         }
+        delete popped;
     }// end while
 }// end stage_1_filtering_thread

@@ -32,12 +32,13 @@ void* LR_diff_recovery_thread(void* args){
 	Deque<double> y_hist(a->size()-1);
 
 	complex<double> a0 = (*a)[0];
-	int counter = 0;
-	int index = 0;
 
 	complex<double>* decimated = new complex<double>[chunk_size];
-	complex<double>* sig_filtered = new complex<double>[chunk_size];
+	complex<double>* sig_filtered = new complex<double>[chunk_size]; // reuseable
+	double* data;
 
+	int counter = 0;
+	int index = 0;
 	int c = 0;
 	while(true)	{
 		printf("[%s]	%d\n", name.c_str(), c);
@@ -49,7 +50,7 @@ void* LR_diff_recovery_thread(void* args){
 			break;
 		}
 
-		double* data = popped->data;
+		data = popped->data;
 
 		for(int i = 0; i < chunk_size; i++){
 			double d = data[i];
@@ -87,6 +88,8 @@ void* LR_diff_recovery_thread(void* args){
             }
             counter = (counter+1) % dec_rate;
 		}
+		
+		delete popped;
 	}// end while
 
 	return nullptr;

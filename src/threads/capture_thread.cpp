@@ -92,14 +92,8 @@ void* capture_thread(void* args){
         long long time_ns;
         int ret = sdr->readStream(rx_stream, buffs, CHUNK_SIZE, flags, time_ns, 1e5);
 
-        // for(int j = 0; j < CHUNK_SIZE; j++){
-            // complex<float> sum = data[j];
-            // fprintf(fp, "%f,%f\n", sum.real(), sum.imag());
-        // }
         out->push((complex<float>*) data);
     }
-
-    // fclose(fp);
 
     return nullptr;
 
