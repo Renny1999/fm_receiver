@@ -57,7 +57,6 @@ void* LR_diff_extraction_thread(void* args){
 		data2 = popped2->data;
 
 		for(int i = 0; i < chunk_size; i++){
-
 			complex<double> d = data1[i]*data2[i];
 			x_hist.push_front(d);
 			// calculate y[n] only if it is the value needed
@@ -79,6 +78,9 @@ void* LR_diff_extraction_thread(void* args){
 			}
 			counter = (counter+1) % dec_rate;
 		}
+		
+		delete popped1;
+		delete popped2;
 	}// end while
 	return nullptr;
 }

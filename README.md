@@ -22,6 +22,9 @@ TODOs: <br />
 * [ ] Complex number multiplication in stage_1_filtering_thread is more expensive than simply mulplying by a double
   * We know the coefficients in the butterworth filter difference equation are all real, so maybe take advantage of that?
 * [ ] Take care of memory leaks
+  * [x] Fix the memory leak caused by using the same pointer for each popped data
+    * solved by deleting the popped data at the end of every loop since it is not needed in the next thread which use a copy/new buffer
+    [ ] Minor memory leaks still exists, need investigation
 * [ ] Verify stereo audio is working
 
 Notes: <br />

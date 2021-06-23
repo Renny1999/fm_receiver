@@ -28,7 +28,9 @@ void* FM_demod_thread(void* args){
 
 	complex<float> last(0.0, 0.0);
 	double y_1 = 0.0;		// y_1 means y[n-1], y1 means y[n+1]
-
+	double* fm_demodulated1;
+	double* fm_demodulated2;
+	double* de_emphasized;
 	while(true){
 		QueueElement<complex<float>>* popped = in->pop(3000, name);
 		if(popped == nullptr){
@@ -37,9 +39,10 @@ void* FM_demod_thread(void* args){
 		}
 
 		complex<float>* data = popped->data;
-		double* fm_demodulated1 = new double[chunk_size];
-		double* fm_demodulated2 = new double[chunk_size];
-		double* de_emphasized = new double[chunk_size];
+
+		fm_demodulated1 = new double[chunk_size];
+		fm_demodulated2 = new double[chunk_size];
+		de_emphasized = new double[chunk_size];
 
 		// apply FM demodulation
 		for(int i = 0; i < chunk_size; i++){
@@ -61,6 +64,8 @@ void* FM_demod_thread(void* args){
 		}
 
 		out1->push(de_emphasized);
+
+		delete popped;
 	}
 
 	return nullptr;

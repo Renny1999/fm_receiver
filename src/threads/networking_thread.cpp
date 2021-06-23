@@ -75,8 +75,8 @@ void* networking_thread(void* args){
 				}
 			}
 		}
-
-	}
-	// fclose(fp);
+		delete popped1;
+		delete popped2;
+	}// end while
 	return nullptr;
 }

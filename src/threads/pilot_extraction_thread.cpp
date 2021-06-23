@@ -28,9 +28,9 @@ void* pilot_extraction_thread_h(void* args){
 	Deque<double> x_hist(taps);
 
 	complex<double>* decimated = new complex<double>[chunk_size];
+
 	int counter = 0;
 	int index = 0;
-	FILE* fp;
 	while(true){
 		QueueElement<double>* popped = in->pop(3000, name);
 		if(popped == nullptr){
@@ -92,7 +92,8 @@ void* pilot_extraction_thread_stage_1_diffeq(void* args){
 
 	complex<double>* decimated = new complex<double>[chunk_size];
 
-	double* sig_filtered = new double[chunk_size];
+	double* sig_filtered = new double[chunk_size]; // sig_filtered is a reuseable buffer
+	double* data;
 
 	while(true){
 		QueueElement<double>* popped = in->pop(3000, name);
@@ -101,7 +102,7 @@ void* pilot_extraction_thread_stage_1_diffeq(void* args){
 			break;
 		}
 
-		double* data = popped->data;
+		data = popped->data;
 
 		for(int i = 0; i < chunk_size; i++){
 			double d = data[i];
@@ -136,7 +137,8 @@ void* pilot_extraction_thread_stage_1_diffeq(void* args){
             }
             counter = (counter+1) % dec_rate;
 		}
-	}
+		delete popped;
+	}// end while
 	return nullptr;
 }
 
@@ -199,7 +201,9 @@ void* pilot_extraction_thread_stage_2_diffeq(void* args){
 		}
 		out->push(sig_filtered);
 		sig_filtered = new complex<double>[chunk_size];
-	}
+
+		delete popped;
+	}// end while
 
 	return nullptr;
 }
