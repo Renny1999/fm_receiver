@@ -28,24 +28,33 @@ void* FM_demod_thread(void* args){
 
 	complex<float> last(0.0, 0.0);
 	double y_1 = 0.0;		// y_1 means y[n-1], y1 means y[n+1]
-	// while(true){
-	for(int i = 0; i < 1000*8; i++){
-		complex<float>* data = in->pop(name)->data;
-		double* fm_demodulated1 = new double[chunk_size];
-		double* fm_demodulated2 = new double[chunk_size];
-		double* de_emphasized = new double[chunk_size];
+	double* fm_demodulated1;
+	double* fm_demodulated2;
+	double* de_emphasized;
+	while(true){
+		QueueElement<complex<float>>* popped = in->pop(3000, name);
+		if(popped == nullptr){
+			cout<<"[FM DEMOD]	time out!"<<endl;
+			return nullptr;
+		}
+
+		complex<float>* data = popped->data;
+
+		fm_demodulated1 = new double[chunk_size];
+		fm_demodulated2 = new double[chunk_size];
+		de_emphasized = new double[chunk_size];
 
 		// apply FM demodulation
 		for(int i = 0; i < chunk_size; i++){
 			double res = arg(data[i]*conj(last));
 			fm_demodulated1[i] = res;
-			// fm_demodulated2[i] = res;
+			fm_demodulated2[i] = res;
 			last = data[i];
 		}
 		
 		/* add a second channel that takes out fm_demodulated */
-		// out2->push(fm_demodulated1);
-		// out3->push(fm_demodulated2);
+		out2->push(fm_demodulated1);
+		out3->push(fm_demodulated2);
 
 		// apply de_emphasis filter
 		for(int i = 0; i < chunk_size; i++){
@@ -55,6 +64,8 @@ void* FM_demod_thread(void* args){
 		}
 
 		out1->push(de_emphasized);
+
+		delete popped;
 	}
 
 	return nullptr;

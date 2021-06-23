@@ -14,9 +14,13 @@ struct m_audio_extract_args{
     double sample_rate;
     int chunk_size;
     int signal_bw;
+    int dec_rate;
 };
 
-//  lowpass the signal at 0~200kHz, then decimate it to achieve a new frequency of 200kHz
+
+/**
+ * lowpass the signal at 0~15kHz, then decimate it to achieve a new frequency of 48kHz
+*/
 void* mono_audio_extraction_thread_diffeq(void* args);
 
 #endif

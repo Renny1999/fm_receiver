@@ -15,6 +15,9 @@
 using namespace std;
 
 void* capture_thread(void* args){
+    
+    string name = "CAPTURE";
+
     sleep(1);
     capture_args* capture_config = (capture_args*) args;
     BlockingQueue<complex<float>>* out = capture_config->out;
@@ -78,29 +81,19 @@ void* capture_thread(void* args){
 
     sdr->activateStream(rx_stream, 0, 0, 0);
 
-    // 5. create a re-usable buffer for rx samples
-
-    // 6. receive some samples
-    // while(true){
-
     // FILE* fp;
     // fp = fopen("output/exp/unfiltered_1M.txt", "w");
-    for(int i = 0; i < 5000*8; i++){
-        printf("[CAPTURE]   %d\n", i);
+    // for(int i = 0; i < 5000*2; i++){
+    while(true){
+        // printf("[CAPTURE]   %d\n", i);
         complex<float>* data = new complex<float>[CHUNK_SIZE];
         void* buffs[] = {data};
         int flags;
         long long time_ns;
         int ret = sdr->readStream(rx_stream, buffs, CHUNK_SIZE, flags, time_ns, 1e5);
 
-        // for(int j = 0; j < CHUNK_SIZE; j++){
-            // complex<float> sum = data[j];
-            // fprintf(fp, "%f,%f\n", sum.real(), sum.imag());
-        // }
         out->push((complex<float>*) data);
     }
-
-    // fclose(fp);
 
     return nullptr;
 

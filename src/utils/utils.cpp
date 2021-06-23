@@ -82,7 +82,7 @@ void* elementwise_multi_sum(void* args){
 	return nullptr;
 }
 
-vector<complex<float>>* read_butterworth_complex_coeffs(string filepath){
+vector<complex<float>>* read_complex_float_coeffs(string filepath){
 	ifstream file;
 	file.open(filepath);
 
@@ -105,7 +105,30 @@ vector<complex<float>>* read_butterworth_complex_coeffs(string filepath){
 	return vec;
 }
 
-vector<float>* read_butterworth_float_coeffs(string filepath){
+vector<complex<double>>* read_complex_double_coeffs(string filepath){
+	ifstream file;
+	file.open(filepath);
+
+	if(!file.is_open()){
+		printf("Failed to open %s\n", filepath.c_str());
+		file.close();
+		exit(-1);
+	}
+	
+	vector<complex<double>>* vec = new vector<complex<double>>();
+	string temp;
+	while(!file.eof()){
+		getline(file,temp);
+		double real_part = stof(temp);
+		getline(file,temp);
+		double imag_part = stof(temp);
+		vec->push_back(complex<double>(real_part, imag_part));
+	}
+
+	return vec;
+}
+
+vector<float>* read_float_coeffs(string filepath){
 	ifstream file;
 	file.open(filepath);
 
@@ -126,4 +149,36 @@ vector<float>* read_butterworth_float_coeffs(string filepath){
 	}
 
 	return vec;
+}
+
+vector<double>* read_double_coeffs(string filepath){
+	ifstream file;
+	file.open(filepath);
+
+	if(!file.is_open()){
+		printf("Failed to open %s\n", filepath.c_str());
+		file.close();
+		exit(-1);
+	}
+	
+	vector<double>* vec = new vector<double>();
+	string temp;
+	while(!file.eof()){
+		getline(file,temp);
+		double real_part = stof(temp);
+		getline(file,temp);
+		// float imag_part = stof(temp);
+		vec->push_back(real_part);
+	}
+
+	return vec;
+}
+
+int16_t float2int16(float f){
+	float sample = f*32768*0.8;
+	if(sample > 32767) sample = 32767;
+	if(sample < -32768) sample = -32768;
+	int16_t integer = (int16_t) sample;
+
+	return integer;
 }

@@ -1,21 +1,20 @@
 #include <iostream>
 #include <complex>
 #include "./utils/FixedSizedDeque.h"
+#include "./utils/Deque.h"
 
 using namespace std;
 
 int main(){
-	int cap = 3;
+	float d = 1.0;
 
-	FixedSizedDeque<complex<double>> dq(cap);
-	dq.push_front(complex<double>(1,1));
-	dq.push_back(complex<double>(2,2));
-	dq.push_back(complex<double>(3,3));
-	for(int i = 0; i < cap; i++){
-		cout<<dq[i]<<endl;
+	char* buffer = static_cast<char*>(static_cast<void*>(&d));
+
+	for(int i = 0; i < 8; i++){
+		cout<<buffer[i]<<endl;
 	}
 
-
+	cout<<sizeof(d)<<endl;
 
 	return 0;
 }

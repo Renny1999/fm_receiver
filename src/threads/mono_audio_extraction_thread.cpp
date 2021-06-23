@@ -19,9 +19,9 @@ void* mono_audio_extraction_thread_diffeq(void* args){
 	BlockingQueue<double>* out = params->out;
 
 	double Fs = params->sample_rate;
-    double audio_freq = 44100;
+    double audio_freq = 48000;
 
-    int dec_rate = 10;
+    int dec_rate = params->dec_rate;
 
 	int chunk_size = params->chunk_size;
 
@@ -29,10 +29,10 @@ void* mono_audio_extraction_thread_diffeq(void* args){
     vector<float>* b;
 
     // read in diffeq "a" coefficients 
-    a = read_butterworth_float_coeffs(params->filter_path_diffeq_a);
+    a = read_float_coeffs(params->filter_path_diffeq_a);
 
     // read in diffeq "b" coefficients 
-    b = read_butterworth_float_coeffs(params->filter_path_diffeq_b);
+    b = read_float_coeffs(params->filter_path_diffeq_b);
 
     printf("[MONO EXTRACT]   initialized filter difference eqution\n");
 
@@ -40,18 +40,23 @@ void* mono_audio_extraction_thread_diffeq(void* args){
     FixedSizedDeque<double> y_hist(a->size()-1);  // all initialized to 0, does not include y[n-1] ~
     float a0 = (*a)[0];
 
-    printf("[MONO EXTRACT]   a0 = %f\n", a0);
+    // set up buffers
+    double* extracted = new double[chunk_size];
+    double* sig_filtered = new double[chunk_size];  // reused buffer
+    double* data;
 
     int counter = 0;    // every dec_rate sample, the sample is saved
     int index = 0;      // goes from 0 to chunk_size-1
+    while(true){
+        QueueElement<double>* popped = in->pop(5000, name);
+        if(popped == nullptr){
+            cout<<"[MONO EXTRACT]   time out!"<<endl;
+            return nullptr;
+        }
+        data = popped->data;
 
-    // while(true){
-    double* extracted = new double[chunk_size];
-    for(int i = 0; i < 1000*8; i++){
-        double* data = in->pop(name)->data;
         // apply filter here
-
-        double* sig_filtered = new double[chunk_size];
+        // sig_filtered = new double[chunk_size];
 
         for(int data_index = 0; data_index < chunk_size; data_index++){
             double d = data[data_index];
@@ -77,7 +82,7 @@ void* mono_audio_extraction_thread_diffeq(void* args){
 
         for(int j = 0; j < chunk_size; j++){
             if(counter == 0){
-                extracted[index] = sig_filtered[j];
+                extracted[index] = float(sig_filtered[j]);
 
                 index = (index+1) % chunk_size;
 
@@ -90,7 +95,7 @@ void* mono_audio_extraction_thread_diffeq(void* args){
         }
 
         // contents of data no longer needed
-        delete []data;
+        delete popped;
     }
 
     return nullptr;
