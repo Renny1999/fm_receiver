@@ -24,7 +24,7 @@ mono audio extraction thread | FM-demodulated FM channel <br/> `double` | L+R au
 pilot extraction thread | L-R audio with offset of 38kHzFM-demodulated FM channel <br/> `double` | 38kHz pilot signal achieved by multiplying the extracted 19kHz pilot signal by itself <br/> `complex<double>`
 LRdiff recovery thread | FM-demodulated FM channel <br/> `double` | L-R audio with offset of 38kHz <br/> `complex<double>`
 LRdiff extraction thread | L-R audio with offset of 38kHz <br/> `complex<double>` | L-R audio moved to the base band decimated to have Fs = 48kHz <br/> `double`
-networking thread | L+R audio at 48kHz <br/> and <br/> L-R audio at 48kHz <br/> `double` | Sends the L and R channel to client through TCP <br/> `int 16`
+networking thread | L+R audio at 48kHz <br/> and <br/> L-R audio at 48kHz <br/> `double` | Sends the L and R channel to client through TCP <br/> `int16`
 
 
 
