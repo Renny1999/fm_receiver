@@ -23,7 +23,8 @@ Compiling the Code: <br />
   * We know the coefficients in the butterworth filter difference equation are all real, so maybe take advantage of that?
 * [ ] Take care of memory leaks
   * [x] Fix the memory leak caused by using the same pointer for each popped data
-    * solved by deleting the popped data at the end of every loop since it is not needed in the next thread which use a copy/new buffer
+    * Solved by deleting the popped data at the end of every loop since it is not needed in the next thread which use a copy/new buffer
+    * After such changes, it is observed that the program does not use unbounded amount of memory, indicating that perhaps nothing more need to be done in terms of memory management
     [ ] Minor memory leaks still exists, need investigation
 * [ ] Verify stereo audio is working
 

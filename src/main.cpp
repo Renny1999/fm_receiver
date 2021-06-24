@@ -26,12 +26,15 @@
 #include "./threads/LR_diff_extraction_thread.h"
 #include "./threads/networking_thread.h"
 
+int setup_socket(int port);
 
 using namespace std;
 using namespace chrono;
 
 int CHUNK_SIZE = 512;
 int Fs = 1.44e6;
+int PORT = 4500;
+bool tcp = true;
 // int Fs = 2.4e6;
 
 int main(){
@@ -44,8 +47,6 @@ int main(){
     BlockingQueue<double> fm_demod_out3;         // same as LRdiff_extraction_thread_in
     BlockingQueue<double> mono_audio_extraction_out;
 
-
-    bool tcp = true;
     // second path
     BlockingQueue<complex<double>> LR_diff_recovery_out;
     BlockingQueue<complex<double>> pilot_extraction_out1;
@@ -54,7 +55,7 @@ int main(){
 
     capture_args capture_config;
         capture_config.sample_rate = Fs;
-        capture_config.center_freq = 88.7e6;
+        capture_config.center_freq = 91.9e6;
         capture_config.out = &capture_out;
         capture_config.chunk_size = CHUNK_SIZE;
 
@@ -125,7 +126,7 @@ int main(){
         LR_diff_ext_config.chunk_size = CHUNK_SIZE;
         LR_diff_ext_config.dec_rate = 2;
         LR_diff_ext_config.sample_rate = 480000/5;
-        LR_diff_ext_config.taps = 25;
+        LR_diff_ext_config.taps = 32;
 
         LR_diff_ext_config.filter_path_h = "./filters/LR_diff_filter_h_15kHz.txt";
 
@@ -136,53 +137,10 @@ int main(){
         networking_config.LRdiff = &LR_diff_out;
         networking_config.chunk_size = CHUNK_SIZE;
 
-
     if(tcp == true){
-        int server_fd, new_socket, valread;
-        int PORT = 4500;
-        struct sockaddr_in address;
-        int opt = 1;
-        int addrlen = sizeof(address);
-
-        server_fd = socket(AF_INET, SOCK_STREAM, 0);
-        if(server_fd == 0){
-            cerr<<"failed to open socket"<<endl;
-            exit(EXIT_FAILURE);
-        }
-
-        if (setsockopt(server_fd, SOL_SOCKET, 
-                SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))){
-            cerr<<"error setsockopt"<<endl;
-            exit(-1);
-        }
-
-        address.sin_family = AF_INET;
-        address.sin_addr.s_addr = INADDR_ANY;
-        address.sin_port = htons(PORT);
-
-        if(bind(server_fd, (struct sockaddr *) &address, sizeof(address))<0){
-            cerr<<"port binding failed"<<endl;
-            exit(-1);
-        }
-
-        if (listen(server_fd, 3) < 0){
-            cerr<<"error listening"<<endl;
-            exit(-1);
-        }
-
-        cout<<"listening"<<endl;
-        if ((new_socket = accept(
-                            server_fd,
-                            (struct sockaddr*) &address,
-                            (socklen_t*) &addrlen))<0)
-        {
-            cerr<<"error accept"<<endl;
-            exit(-1);
-        }
-
-        cout<<"client connected"<<endl;
-        networking_config.socket_fd = new_socket;
+        networking_config.socket_fd  = setup_socket(PORT);
     }
+    
 
     auto start_time = high_resolution_clock::now();
     pthread_t capture_id;
@@ -257,4 +215,49 @@ int main(){
     return 0;
 }
 
+int setup_socket(int port){
+    int server_fd, new_socket, valread;
+    int PORT = 4500;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
 
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if(server_fd == 0){
+        cerr<<"failed to open socket"<<endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (setsockopt(server_fd, SOL_SOCKET, 
+            SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))){
+        cerr<<"error setsockopt"<<endl;
+        exit(-1);
+    }
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(port);
+
+    if(bind(server_fd, (struct sockaddr *) &address, sizeof(address))<0){
+        cerr<<"port binding failed"<<endl;
+        exit(-1);
+    }
+
+    if (listen(server_fd, 3) < 0){
+        cerr<<"error listening"<<endl;
+        exit(-1);
+    }
+
+    cout<<"listening"<<endl;
+    if ((new_socket = accept(
+                        server_fd,
+                        (struct sockaddr*) &address,
+                        (socklen_t*) &addrlen))<0)
+    {
+        cerr<<"error accept"<<endl;
+        exit(-1);
+    }
+
+    cout<<"client connected"<<endl;
+    return new_socket;
+}
