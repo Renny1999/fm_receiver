@@ -32,7 +32,7 @@ filter2file(filename2, lpf)
 
 filename2 = "./filters/LR_diff_filter_h_15kHz.txt"
 f_bw = 15000
-n_taps = 25
+n_taps = 32
 Fs = 480000/5
 cutoff = f_bw
 trans_width = 1000

@@ -42,7 +42,7 @@ Fs = 480000/5
 
 b_filename = "./filters/18kHz_20kHz_bp_b2.txt"
 a_filename = "./filters/18kHz_20kHz_bp_a2.txt"
-b,a = signal.butter(3, [37e3, 39e3], btype='band', fs=Fs)
+b,a = signal.butter(4, [37e3, 39e3], btype='band', fs=Fs)
 filter2file(b_filename, b)
 filter2file(a_filename, a)
 

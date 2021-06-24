@@ -49,6 +49,7 @@ void* networking_thread(void* args){
 		for(int i = 0; i < chunk_size; i++){
 			double LRsum_sample = data1[i];
 			double LRdiff_sample = data2[i];
+			//double LRdiff_sample = data1[i];
 
 			float left = float(LRsum_sample + LRdiff_sample);
 			float right = float(LRsum_sample - LRdiff_sample);
