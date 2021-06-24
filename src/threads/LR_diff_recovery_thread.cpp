@@ -39,10 +39,10 @@ void* LR_diff_recovery_thread(void* args){
 
 	int counter = 0;
 	int index = 0;
-	int c = 0;
+	// int c = 0;
 	while(true)	{
-		printf("[%s]	%d\n", name.c_str(), c);
-		c++;
+		// printf("[%s]	%d\n", name.c_str(), c);
+		// c++;
 
 		QueueElement<double>* popped = in->pop(3000, name);
 		if(popped == nullptr){
