@@ -9,8 +9,7 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
-#include <string>
-
+#include <string>	
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Types.hpp>
 #include <SoapySDR/Formats.hpp>
@@ -37,7 +36,17 @@ int PORT = 4500;
 bool tcp = true;
 // int Fs = 2.4e6;
 
-int main(){
+int main(int argc, char** argv){
+	double fc = 88.7e6;
+	if(argc < 2){
+		printf("USAGE: main [center frequency]\n Default: 88.7e6\n");
+	}else{
+		fc = stod(argv[1]);
+        printf("fs = %f\n", fc);
+	}
+
+    printf("Center Frequency: %.2fe6 Hz\n", fc/(1e6));
+
     SoapySDR::KwargsList results = SoapySDR::Device::enumerate();
     SoapySDR::Kwargs::iterator it;
     BlockingQueue<complex<float>> capture_out;  // same as filter_in
@@ -55,7 +64,8 @@ int main(){
 
     capture_args capture_config;
         capture_config.sample_rate = Fs;
-        capture_config.center_freq = 91.9e6;
+        capture_config.center_freq = fc;
+        // capture_config.center_freq = 93.7e6;
         capture_config.out = &capture_out;
         capture_config.chunk_size = CHUNK_SIZE;
 
@@ -137,10 +147,6 @@ int main(){
         networking_config.LRdiff = &LR_diff_out;
         networking_config.chunk_size = CHUNK_SIZE;
 
-    if(tcp == true){
-        networking_config.socket_fd  = setup_socket(PORT);
-    }
-    
 
     auto start_time = high_resolution_clock::now();
     pthread_t capture_id;
@@ -171,7 +177,11 @@ int main(){
     pthread_create(&LR_diff_extraction_id, NULL, &LR_diff_extraction_thread, &LR_diff_ext_config);
 
     pthread_t networking_id;
-    pthread_create(&networking_id, NULL, &networking_thread, &networking_config);
+    if(tcp == true){
+        networking_config.socket_fd  = setup_socket(PORT);
+        pthread_create(&networking_id, NULL, &networking_thread, &networking_config);
+        pthread_join(networking_id, NULL);
+    }
 
     pthread_join(capture_id, NULL);
     pthread_join(stage_1_id, NULL);
@@ -181,83 +191,11 @@ int main(){
     pthread_join(pilot_extraction_id2, NULL);
     pthread_join(LR_diff_recovery_id, NULL);
     pthread_join(LR_diff_extraction_id, NULL);
-    pthread_join(networking_id, NULL);
-
-    // FILE *fp;
-    // // string filename = "./output/filtered_result.txt";
-    // string filename = "./output/exp/audio_f.txt";
-    // fp = fopen(filename.c_str(),"w");
-    // if(fp == nullptr){
-    //     perror("Error");
-    // }
 
     // auto stop_time = high_resolution_clock::now();
-    // cout<<"[Main]   done waiting"<<endl;
-    // for(int j = 0; j < 1000*8; j++){
-    //     printf("[MAIN]  %d\n", j);
-    //     // complex<float>* buffer = stage1_out.pop(3000)->data;
-    //     QueueElement<double>* e = mono_audio_extraction_out.pop(1000);
-    //     if(e == nullptr){
-    //         cout<<"timed out and no more data"<<endl;
-    //         break;
-    //     }
-    //     double* buffer = e->data;
-    //     for(int i = 0; i < CHUNK_SIZE; i++){
-    //         complex<double> num = buffer[i];
-    //         fprintf(fp, "%f,%f\n", num.real(), num.imag());
-    //     }
-    // }
-    // fclose(fp);
-    // cout<<"saved"<<endl;
     // auto duration = duration_cast<milliseconds>(stop_time-start_time);
     // cout<<"time spent: "<<duration.count()<<" ms"<<endl;
 
     return 0;
 }
 
-int setup_socket(int port){
-    int server_fd, new_socket, valread;
-    int PORT = 4500;
-    struct sockaddr_in address;
-    int opt = 1;
-    int addrlen = sizeof(address);
-
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if(server_fd == 0){
-        cerr<<"failed to open socket"<<endl;
-        exit(EXIT_FAILURE);
-    }
-
-    if (setsockopt(server_fd, SOL_SOCKET, 
-            SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))){
-        cerr<<"error setsockopt"<<endl;
-        exit(-1);
-    }
-
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(port);
-
-    if(bind(server_fd, (struct sockaddr *) &address, sizeof(address))<0){
-        cerr<<"port binding failed"<<endl;
-        exit(-1);
-    }
-
-    if (listen(server_fd, 3) < 0){
-        cerr<<"error listening"<<endl;
-        exit(-1);
-    }
-
-    cout<<"listening"<<endl;
-    if ((new_socket = accept(
-                        server_fd,
-                        (struct sockaddr*) &address,
-                        (socklen_t*) &addrlen))<0)
-    {
-        cerr<<"error accept"<<endl;
-        exit(-1);
-    }
-
-    cout<<"client connected"<<endl;
-    return new_socket;
-}

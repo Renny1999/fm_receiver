@@ -26,6 +26,7 @@ void* capture_thread(void* args){
     SoapySDR::KwargsList results = SoapySDR::Device::enumerate();
     SoapySDR::Kwargs::iterator it;
 
+    printf("[%s]     fc = %f\n", name.c_str(), capture_config->center_freq);
     for (int i = 0; i < results.size(); i++){
         printf("Found device #%d: ", i);
 

@@ -37,10 +37,10 @@ void* LR_diff_extraction_thread(void* args){
 
 	int counter = 0;
 	int index = 0;
-	int c = 0;
+	// int c = 0;
 	while(true){
-        printf("[%s]   %d\n",name.c_str(), c);
-        c++;
+        // printf("[%s]   %d\n",name.c_str(), c);
+        // c++;
 
 		QueueElement<complex<double>>* popped1 = LR_diff->pop(3000, name);
         if(popped1 == nullptr){
