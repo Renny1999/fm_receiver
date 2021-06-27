@@ -9,6 +9,8 @@ https://github.com/pothosware/SoapyRTLSDR/wiki  <br />
 https://github.com/pothosware/SoapySDR/wiki <br />
 
 Compiling the Code: <br />
+* `cd src` <br />
+  `make`
 * Flags needed before -o <br />
   * -pthread
 * Flags needed after -o (for linking library)
