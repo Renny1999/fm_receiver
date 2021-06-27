@@ -1,5 +1,4 @@
 # fm_receiver
-
 Dependencies:<br />
 SoapySDR configured to use RTL-SDR <br />
 FFTW3 with --enable-float
@@ -17,6 +16,7 @@ Compiling the Code: <br />
   * -lSoapySDR  (needed to use SoapySDR)
   * -lfftw3f  (needed to use fftw3's float version)
 
+![Screenshot 2021-06-26 202235](https://user-images.githubusercontent.com/33414341/123531794-6ca6d280-d6bc-11eb-9ad8-ad09891b33cd.png)
 THREAD | INPUT | OUTPUT
 ---- | ---- | ----
 capture thread | N/A | raw IQ sample <br /> `complex<float>`
