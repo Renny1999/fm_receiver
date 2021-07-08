@@ -9,8 +9,6 @@
 #include <sys/time.h>
 #include <string>
 
-using namespace std;
-
 template <class T>
 struct QueueElement{
     // std::complex<float>* data;
@@ -36,8 +34,8 @@ class BlockingQueue{
     pthread_mutex_t access_mutex;
     pthread_cond_t non_empty_cond;   // use this when the queue is empty
 
-    QueueElement<T>* pop(string owner = "");
-    QueueElement<T>* pop(int timeout, string owner = "");
+    QueueElement<T>* pop(std::string owner = "");
+    QueueElement<T>* pop(int timeout, std::string owner = "");
     // void push(std::complex<float>* buffer);
     void push(T* buffer);
 
@@ -45,7 +43,6 @@ class BlockingQueue{
 
     BlockingQueue(int capacity = 400);
     ~BlockingQueue();
-
 }; 
 
 template <class T>
@@ -60,7 +57,7 @@ BlockingQueue<T>::BlockingQueue(int capacity){
 }
 
 template <class T>
-QueueElement<T>* BlockingQueue<T>::pop(string owner){
+QueueElement<T>* BlockingQueue<T>::pop(std::string owner){
     pthread_mutex_lock(&access_mutex);
     while(this->size == 0){
         // printf("[%s]    blocking\n", owner.c_str());
@@ -70,7 +67,7 @@ QueueElement<T>* BlockingQueue<T>::pop(string owner){
     // the blocking is done
     QueueElement<T>* popped = this->head;
     if(!(popped)){
-        cout<<"bad"<<endl;
+        std::cout<<"bad"<<std::endl;
     }
     popped->next = nullptr;
 
@@ -91,7 +88,7 @@ QueueElement<T>* BlockingQueue<T>::pop(string owner){
 
 // times out after timeInMs if the queue is empty. returns nullptr
 template <class T>
-QueueElement<T>* BlockingQueue<T>::pop(int timeInMs, string name){
+QueueElement<T>* BlockingQueue<T>::pop(int timeInMs, std::string name){
 
     struct timeval tv;
     struct timespec ts;
@@ -114,7 +111,7 @@ QueueElement<T>* BlockingQueue<T>::pop(int timeInMs, string name){
     // the blocking is done
     QueueElement<T>* popped = this->head;
     if(!(popped)){
-        cout<<"bad"<<endl;
+        std::cout<<"bad"<<std::endl;
     }
 
     // adjust size
