@@ -3,12 +3,13 @@ Dependencies:<br />
 SoapySDR configured to use RTL-SDR <br />
 FFTW3 with --enable-float
 
-Need RTL-SDR module for SoapySDR <br />
+# Setting up the dependencies
 1. librtlsdr `https://github.com/librtlsdr/librtlsdr <br />
-2. SoapyRTLSDR (RTL-SDR module for SoapySDR) https://github.com/pothosware/SoapyRTLSDR/wiki  <br />
-3. SoapySDR https://github.com/pothosware/SoapySDR/wiki <br />
+2. inside `/etc/modprobe.d/no-rtl.conf`, put `blacklist dvb_usb_rtl28xxu blacklist rtl2832 blacklist rtl2830`
+4. SoapyRTLSDR (RTL-SDR module for SoapySDR) https://github.com/pothosware/SoapyRTLSDR/wiki  <br />
+5. SoapySDR https://github.com/pothosware/SoapySDR/wiki <br />
 
-Compiling the Code: <br />
+# Compiling the Code: <br />
 * `cd src` <br />
   `make`
 * Flags needed before -o <br />
