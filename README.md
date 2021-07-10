@@ -4,8 +4,9 @@ SoapySDR configured to use RTL-SDR <br />
 FFTW3 with --enable-float
 
 Need RTL-SDR module for SoapySDR <br />
-https://github.com/pothosware/SoapyRTLSDR/wiki  <br />
-https://github.com/pothosware/SoapySDR/wiki <br />
+1. librtlsdr `https://github.com/librtlsdr/librtlsdr <br />
+2. https://github.com/pothosware/SoapyRTLSDR/wiki  <br />
+3. https://github.com/pothosware/SoapySDR/wiki <br />
 
 Compiling the Code: <br />
 * `cd src` <br />
