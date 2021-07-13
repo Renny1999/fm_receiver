@@ -37,9 +37,9 @@ bool tcp = true;
 // int Fs = 2.4e6;
 
 int main(int argc, char** argv){
-	double fc = 88.7e6;
+	double fc = 89.3e6;
 	if(argc < 2){
-		printf("USAGE: main [center frequency]\n Default: 88.7e6\n");
+		printf("USAGE: main [center frequency]\n Default: %f\n", fc);
 	}else{
 		fc = stod(argv[1]);
         printf("fs = %f\n", fc);

@@ -4,7 +4,7 @@ FFTWFFLAGS = -lfftw3f
 
 all: main.cpp ./utils/utils.cpp ./threads/*thread.cpp
 	clear
-	$(CC) -g -pthread -o ../target/main $? $(SOAPYFLAGS) $(FFTWFFLAGS)
+	$(CC) -pthread -o ../target/main $? $(SOAPYFLAGS) $(FFTWFFLAGS)
 
 test: 
 	$(CC) -pthread -o ../target/test test.cpp ./utils/BlockingQueue.cpp ./utils/*.cpp
