@@ -3,10 +3,13 @@
 
 #include <complex>
 #include <string>
+#include <atomic>
 
 #include "../utils/BlockingQueue.h"
 
 struct pilot_extract_args_1{
+	std::atomic<bool>* exit_loop;
+
 	BlockingQueue<double>* in;
 	BlockingQueue<std::complex<double>>* out;
 	std::string filter_path_diffeq_a;
@@ -18,6 +21,7 @@ struct pilot_extract_args_1{
 	int taps;
 };
 struct pilot_extract_args_2{
+	std::atomic<bool>* exit_loop;
 	BlockingQueue<std::complex<double>>* in;
 	BlockingQueue<std::complex<double>>* out;
 	std::string filter_path_diffeq_a;
