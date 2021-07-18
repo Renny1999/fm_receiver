@@ -38,18 +38,19 @@ void* LR_diff_extraction_thread(void* args){
 	int counter = 0;
 	int index = 0;
 	// int c = 0;
-	while(true){
+	// while(!params->exit_loop->load()){
+    while(true){
         // printf("[%s]   %d\n",name.c_str(), c);
         // c++;
 
 		QueueElement<complex<double>>* popped1 = LR_diff->pop(3000, name);
         if(popped1 == nullptr){
-            printf("[%s]    timed out!, exiting thread...\n", name.c_str());
+            printf("[%s]\t\ttimed out!, exiting thread...\n", name.c_str());
             return nullptr;
         }
 		QueueElement<complex<double>>* popped2 = pilot->pop(3000, name);
         if(popped1 == nullptr){
-            printf("[%s]    timed out!, exiting thread...\n", name.c_str());
+            printf("[%s]\t\ttimed out!, exiting thread...\n", name.c_str());
             return nullptr;
         }
 

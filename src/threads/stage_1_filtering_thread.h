@@ -2,9 +2,11 @@
 #define LOWPASS_THREAD
 
 #include <complex>
+#include <atomic>
 #include "../utils/BlockingQueue.h"
 
 struct stage_1_filtering_args{
+    std::atomic<bool>* exit_loop;
     BlockingQueue<std::complex<float>>* in; 
     BlockingQueue<std::complex<float>>* out; 
     std::string filter_path_fft;

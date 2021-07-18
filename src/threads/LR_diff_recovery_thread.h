@@ -3,10 +3,12 @@
 
 #include <string>
 #include <complex>
+#include <atomic>
 #include "../utils/BlockingQueue.h"
 
 
 struct LR_diff_recovery_args{
+	std::atomic<bool>* exit_loop;
 	BlockingQueue<double>* in;
 	BlockingQueue<std::complex<double>>* out;	
 

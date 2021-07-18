@@ -40,13 +40,14 @@ void* LR_diff_recovery_thread(void* args){
 	int counter = 0;
 	int index = 0;
 	// int c = 0;
-	while(true)	{
+	// while(!params->exit_loop->load())	{
+    while(true){
 		// printf("[%s]	%d\n", name.c_str(), c);
 		// c++;
 
 		QueueElement<double>* popped = in->pop(3000, name);
 		if(popped == nullptr){
-			printf("[%s]	timed out! exiting thread...\n", name.c_str());
+			printf("[%s]\t\ttimed out! exiting thread...\n", name.c_str());
 			break;
 		}
 

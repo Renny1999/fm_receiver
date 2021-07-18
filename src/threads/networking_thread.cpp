@@ -31,48 +31,50 @@ void* networking_thread(void* args){
 	float FLOAT_MIN = std::numeric_limits<float>::lowest();
 	char buffer[512] = {0};
 
-	while(true){
+	// while(!params->exit_loop->load()){
+    while(true){
 		QueueElement<double>* popped1 = LRsum->pop(3000, name);
 		if(popped1 == nullptr){
-			printf("[%s]	timed out! exiting...\n", name.c_str());
+			printf("[%s]\t\ttimed out! exiting...\n", name.c_str());
 			break;
 		}
 		QueueElement<double>* popped2 = LRdiff->pop(3000, name);
 		if(popped2 == nullptr){
-			printf("[%s]	timed out! exiting...\n", name.c_str());
+			printf("[%s]\t\ttimed out! exiting...\n", name.c_str());
 			break;
 		}
 
 		data1 = popped1->data;
 		data2 = popped2->data;
+		if(params->socket_fd != -1){
+			for(int i = 0; i < chunk_size; i++){
+				double LRsum_sample = data1[i];
+				double LRdiff_sample = data2[i];
+				//double LRdiff_sample = data1[i];
 
-		for(int i = 0; i < chunk_size; i++){
-			double LRsum_sample = data1[i];
-			double LRdiff_sample = data2[i];
-			//double LRdiff_sample = data1[i];
+				float left = float(LRsum_sample + LRdiff_sample);
+				float right = float(LRsum_sample - LRdiff_sample);
 
-			float left = float(LRsum_sample + LRdiff_sample);
-			float right = float(LRsum_sample - LRdiff_sample);
-
-			int left_int = float2int16(left);
-			int right_int = float2int16(right);
-			unsigned char* left_bytes = reinterpret_cast<unsigned char *>(&left_int);
-			unsigned char* right_bytes = reinterpret_cast<unsigned char *>(&right_int);
-			
-			for(int j = 0; j < 2; j++){
-				buffer[buffer_index] = left_bytes[j];
-				buffer_index = (buffer_index+1)%512;
-				if(buffer_index == 0){
-					// send data out
-					send(socket_fd, &buffer, 512, 0);
+				int left_int = float2int16(left);
+				int right_int = float2int16(right);
+				unsigned char* left_bytes = reinterpret_cast<unsigned char *>(&left_int);
+				unsigned char* right_bytes = reinterpret_cast<unsigned char *>(&right_int);
+				
+				for(int j = 0; j < 2; j++){
+					buffer[buffer_index] = left_bytes[j];
+					buffer_index = (buffer_index+1)%512;
+					if(buffer_index == 0){
+						// send data out
+						send(socket_fd, &buffer, 512, 0);
+					}
 				}
-			}
-			for(int j = 0; j < 2; j++){
-				buffer[buffer_index] = right_bytes[j];
-				buffer_index = (buffer_index+1)%512;
-				if(buffer_index == 0){
-					// send data out
-					send(socket_fd, &buffer, 512, 0);
+				for(int j = 0; j < 2; j++){
+					buffer[buffer_index] = right_bytes[j];
+					buffer_index = (buffer_index+1)%512;
+					if(buffer_index == 0){
+						// send data out
+						send(socket_fd, &buffer, 512, 0);
+					}
 				}
 			}
 		}

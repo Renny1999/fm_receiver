@@ -31,10 +31,11 @@ void* FM_demod_thread(void* args){
 	double* fm_demodulated1;
 	double* fm_demodulated2;
 	double* de_emphasized;
-	while(true){
+	// while(!params->exit_loop->load()){
+    while(true){
 		QueueElement<complex<float>>* popped = in->pop(3000, name);
 		if(popped == nullptr){
-			cout<<"[FM DEMOD]	time out!"<<endl;
+			cout<<"[FM DEMOD]\t\ttime out! exiting thread..."<<endl;
 			return nullptr;
 		}
 

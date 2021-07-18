@@ -2,10 +2,12 @@
 #define CAPTURE_THREAD_H
 
 #include <complex>
+#include <atomic>
 
 #include "../utils/BlockingQueue.h"
 
 struct capture_args{
+    std::atomic<bool>* exit_loop;
     double sample_rate;
     double center_freq;
     int chunk_size = 1024;
