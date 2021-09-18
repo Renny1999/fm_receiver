@@ -81,7 +81,6 @@ void* capture_thread(void* args){
     }
 
     sdr->activateStream(rx_stream, 0, 0, 0);
-<<<<<<< HEAD
 #define CAPTURE_RAW 1
 #ifdef CAPTURE_RAW
     FILE* fp;
@@ -93,15 +92,6 @@ void* capture_thread(void* args){
 #ifdef DEBUG
         printf("[CAPTURE]   %d\n", i);
 #endif // end of debug
-=======
-
-    // FILE* fp;
-    // fp = fopen("output/exp/unfiltered_1M.txt", "w");
-    // for(int i = 0; i < 5000*2; i++){
-    // while(true){
-    while(!capture_config->exit_loop->load()){
-        // printf("[CAPTURE]   %d\n", i);
->>>>>>> 0a5d732e234aeb8651a26b3762144fe895dceeac
         complex<float>* data = new complex<float>[CHUNK_SIZE];
         void* buffs[] = {data};
         int flags;
@@ -117,7 +107,6 @@ void* capture_thread(void* args){
         out->push(datap);
 #endif
     }
-<<<<<<< HEAD
 #ifdef CAPTURE_RAW
     fclose(fp);
 #endif
@@ -125,13 +114,3 @@ void* capture_thread(void* args){
 
     return nullptr;
 }
-=======
-    sdr->deactivateStream(rx_stream, 0, 0);
-    sdr->closeStream(rx_stream);
-    SoapySDR::Device::unmake(sdr);
-    printf("[CAPTURE]\t\tclosed SDR\n");
-
-    return nullptr;
-
-}
->>>>>>> 0a5d732e234aeb8651a26b3762144fe895dceeac

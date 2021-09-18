@@ -39,6 +39,14 @@ int main(){
 			count = 0;
 		}
 	}
+	// we have read in the data
+	// now perform stage 1 filtering
+
+	auto stage_1_filter = *read_complex_float_coeffs("./filters/stage_1_filter_h_100kHz.txt");
+
+	for(complex<float> num : stage_1_filter){
+		cout<<num<<endl;
+	}
 
 	return 0;
 }

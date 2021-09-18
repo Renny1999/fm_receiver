@@ -6,11 +6,7 @@ DEBUG = -DEBUG
 
 all: main.cpp ./utils/utils.cpp ./threads/*thread.cpp
 	clear
-<<<<<<< HEAD
 	$(CC) -pthread -o ../target/main $? $(SOAPYFLAGS) $(FFTWFFLAGS) $(CFLAGS)
-=======
-	$(CC) -pthread -o ../target/main $? $(SOAPYFLAGS) $(FFTWFFLAGS)
->>>>>>> 0a5d732e234aeb8651a26b3762144fe895dceeac
 
 debug: main.cpp ./utils/utils.cpp ./threads/*thread.cpp
 	clear
