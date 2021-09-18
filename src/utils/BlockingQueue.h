@@ -9,7 +9,6 @@
 #include <sys/time.h>
 #include <string>
 
-<<<<<<< HEAD
 using namespace std;
 /*
     Right now, BlockingQueue<T> will take in a pointer to T as the data stored in the QueueElement
@@ -19,8 +18,6 @@ using namespace std;
 
     I feel bad for making it this way; maybe I will improve it in the future
 */
-=======
->>>>>>> 0a5d732e234aeb8651a26b3762144fe895dceeac
 template <class T>
 struct QueueElement{
     // std::complex<float>* data;
