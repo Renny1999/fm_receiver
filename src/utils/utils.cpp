@@ -232,3 +232,16 @@ int setup_socket(int port){
     cout<<"client connected"<<endl;
     return new_socket;
 }
+
+std::vector<std::string> split(std::string str, char delim){
+	vector<std::string> output;
+	int lastDelimIndex = -1;
+	for(int i = 0; i < str.length(); i++){
+		if(str[i] == delim){
+			output.push_back(str.substr(lastDelimIndex+1, i-lastDelimIndex-1));
+			lastDelimIndex = i;
+		}
+	}
+	output.push_back(str.substr(lastDelimIndex+1, str.length()-lastDelimIndex-1));
+	return output;
+}

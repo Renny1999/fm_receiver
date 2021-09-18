@@ -10,7 +10,14 @@
 #include <string>
 
 using namespace std;
+/*
+    Right now, BlockingQueue<T> will take in a pointer to T as the data stored in the QueueElement
+    The QueueElement is supposed to contain a pointer to a buffer, not a single primitive 
 
+    By taking in buffer, we can ensure that the destructor functions properly by calling delete []
+
+    I feel bad for making it this way; maybe I will improve it in the future
+*/
 template <class T>
 struct QueueElement{
     // std::complex<float>* data;

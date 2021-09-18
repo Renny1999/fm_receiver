@@ -33,7 +33,7 @@ using namespace chrono;
 int CHUNK_SIZE = 512;
 int Fs = 1.44e6;
 int PORT = 4500;
-bool tcp = true;
+bool tcp = false;
 // int Fs = 2.4e6;
 
 int main(int argc, char** argv){
@@ -134,9 +134,6 @@ int main(int argc, char** argv){
         LR_diff_ext_config.pilot = &pilot_extraction_out2;
         LR_diff_ext_config.out = &LR_diff_out;
         LR_diff_ext_config.chunk_size = CHUNK_SIZE;
-        LR_diff_ext_config.dec_rate = 2;
-        LR_diff_ext_config.sample_rate = 480000/5;
-        LR_diff_ext_config.taps = 32;
 
         LR_diff_ext_config.filter_path_h = "./filters/LR_diff_filter_h_15kHz.txt";
 
@@ -183,13 +180,21 @@ int main(int argc, char** argv){
         pthread_join(networking_id, NULL);
     }
 
+    cout<<"capture"<<endl;
     pthread_join(capture_id, NULL);
+    cout<<"stage_1"<<endl;
     pthread_join(stage_1_id, NULL);
+    cout<<"fm_demod"<<endl;
     pthread_join(fm_demod_id, NULL);
+    cout<<"mono"<<endl;
     pthread_join(mono_audio_extraction_id, NULL);
+    cout<<"pe1"<<endl;
     pthread_join(pilot_extraction_id1, NULL);
+    cout<<"pe2"<<endl;
     pthread_join(pilot_extraction_id2, NULL);
+    cout<<"diff_recov"<<endl;
     pthread_join(LR_diff_recovery_id, NULL);
+    cout<<"LR_extract"<<endl;
     pthread_join(LR_diff_extraction_id, NULL);
 
     // auto stop_time = high_resolution_clock::now();

@@ -81,21 +81,36 @@ void* capture_thread(void* args){
     }
 
     sdr->activateStream(rx_stream, 0, 0, 0);
-
-    // FILE* fp;
-    // fp = fopen("output/exp/unfiltered_1M.txt", "w");
-    // for(int i = 0; i < 5000*2; i++){
+#define CAPTURE_RAW 1
+#ifdef CAPTURE_RAW
+    FILE* fp;
+    fp = fopen("output/exp/unfiltered_1M.txt", "w");
+    for(int i = 0; i < 5210*2; i++){
+#elif
     while(true){
-        // printf("[CAPTURE]   %d\n", i);
+#endif
+#ifdef DEBUG
+        printf("[CAPTURE]   %d\n", i);
+#endif // end of debug
         complex<float>* data = new complex<float>[CHUNK_SIZE];
         void* buffs[] = {data};
         int flags;
         long long time_ns;
         int ret = sdr->readStream(rx_stream, buffs, CHUNK_SIZE, flags, time_ns, 1e5);
+        complex<float>* datap = (complex<float>*) data;
 
-        out->push((complex<float>*) data);
+#ifdef CAPTURE_RAW
+    for(int j = 0; j < CHUNK_SIZE; j++){
+        fprintf(fp, "%f,%f\n", datap[j].real(), datap[j].imag());
     }
+#elif
+        out->push(datap);
+#endif
+    }
+#ifdef CAPTURE_RAW
+    fclose(fp);
+#endif
+    cout<<"returning"<<endl;
 
     return nullptr;
-
 }
