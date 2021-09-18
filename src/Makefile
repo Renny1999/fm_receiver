@@ -1,14 +1,23 @@
 CC = g++
 SOAPYFLAGS = -lSoapySDR
 FFTWFFLAGS = -lfftw3f
+CFLAGS = -DEBUG
+DEBUG = -DEBUG
 
 all: main.cpp ./utils/utils.cpp ./threads/*thread.cpp
 	clear
+<<<<<<< HEAD
+	$(CC) -pthread -o ../target/main $? $(SOAPYFLAGS) $(FFTWFFLAGS) $(CFLAGS)
+=======
 	$(CC) -pthread -o ../target/main $? $(SOAPYFLAGS) $(FFTWFFLAGS)
+>>>>>>> 0a5d732e234aeb8651a26b3762144fe895dceeac
 
-test: 
-	$(CC) -pthread -o ../target/test test.cpp ./utils/BlockingQueue.cpp ./utils/*.cpp
-	../target/test
+debug: main.cpp ./utils/utils.cpp ./threads/*thread.cpp
+	clear
+	$(CC) -g -pthread -o ../target/debug $? $(SOAPYFLAGS) $(FFTWFFLAGS) $(DEBUG)
+
+test:  test.cpp ./utils/utils.cpp ./threads/*thread.cpp
+	$(CC) -pthread -o ../target/test  $? $(SOAPYFLAGS) $(FFTWFFLAGS) $(DEBUG)
 
 run: 
 	make reset || true
