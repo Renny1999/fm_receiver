@@ -1,4 +1,4 @@
-./target/
-./src/output
-./src/.vscode
-./.vscode
+target/
+src/output/
+src/.vscode/
+.vscode/
