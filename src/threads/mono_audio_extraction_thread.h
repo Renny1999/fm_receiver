@@ -3,9 +3,11 @@
 
 #include <complex>
 #include <string>
+#include <atomic>
 #include "../utils/BlockingQueue.h"
 
 struct m_audio_extract_args{
+    std::atomic<bool>* exit_loop;
     BlockingQueue<double>* in; 
     BlockingQueue<double>* out; 
     std::string filter_path_fft;

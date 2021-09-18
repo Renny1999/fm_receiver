@@ -320,6 +320,7 @@ void* stage_1_filtering_thread_diffeq_dq(void* args){
     return nullptr;
 }
 
+// this one is used
 void* stage_1_filtering_thread_h(void* args){
     string name = "STAGE 1";
     int c = 0;
@@ -345,13 +346,13 @@ void* stage_1_filtering_thread_h(void* args){
 
     int counter = 0;
     int index = 0;
-    while(true){
+    while(!params->exit_loop->load()){
         QueueElement<complex<float>>* popped = in->pop(3000, name);
         // printf("[STAGE 1]   %d\n", c);
         // c++;
 
         if(popped == nullptr){
-            printf("[%s]    timed out!, exiting thread...\n", name.c_str());
+            printf("[%s]\t\ttimed out!, exiting thread...\n", name.c_str());
             return nullptr;
         }
 
@@ -379,4 +380,5 @@ void* stage_1_filtering_thread_h(void* args){
         }
         delete popped;
     }// end while
+    return nullptr;
 }// end stage_1_filtering_thread

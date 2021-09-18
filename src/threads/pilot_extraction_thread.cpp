@@ -31,10 +31,11 @@ void* pilot_extraction_thread_h(void* args){
 
 	int counter = 0;
 	int index = 0;
-	while(true){
+	// while(!params->exit_loop->load()){
+    while(true){
 		QueueElement<double>* popped = in->pop(3000, name);
 		if(popped == nullptr){
-			printf("[%s]	timed out!, exiting thread...\n", name.c_str());
+			printf("[%s]\t\ttimed out!, exiting thread...\n", name.c_str());
 			break;
 		}
 

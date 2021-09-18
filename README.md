@@ -1,20 +1,24 @@
 # fm_receiver
-
 Dependencies:<br />
 SoapySDR configured to use RTL-SDR <br />
 FFTW3 with --enable-float
 
-Need RTL-SDR module for SoapySDR <br />
-https://github.com/pothosware/SoapyRTLSDR/wiki  <br />
-https://github.com/pothosware/SoapySDR/wiki <br />
+# Setting up the dependencies
+1. librtlsdr `https://github.com/librtlsdr/librtlsdr <br />
+2. inside `/etc/modprobe.d/no-rtl.conf`, put `blacklist dvb_usb_rtl28xxu blacklist rtl2832 blacklist rtl2830` then restart <br />
+3. SoapySDR https://github.com/pothosware/SoapySDR/wiki <br />
+4. SoapyRTLSDR (RTL-SDR module for SoapySDR) https://github.com/pothosware/SoapyRTLSDR/wiki  <br />
 
-Compiling the Code: <br />
+# Compiling the Code: <br />
+* `cd src` <br />
+  `make`
 * Flags needed before -o <br />
   * -pthread
 * Flags needed after -o (for linking library)
   * -lSoapySDR  (needed to use SoapySDR)
   * -lfftw3f  (needed to use fftw3's float version)
 
+![Screenshot 2021-06-26 202235](https://user-images.githubusercontent.com/33414341/123531794-6ca6d280-d6bc-11eb-9ad8-ad09891b33cd.png)
 THREAD | INPUT | OUTPUT
 ---- | ---- | ----
 capture thread | N/A | raw IQ sample <br /> `complex<float>`
