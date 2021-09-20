@@ -81,11 +81,12 @@ void* capture_thread(void* args){
     }
 
     sdr->activateStream(rx_stream, 0, 0, 0);
-#define CAPTURE_RAW 0
-#if CAPTURE_RAW
+#ifdef RAWCAPTURE
     FILE* fp;
-    fp = fopen("output/exp/unfiltered_1M_2.txt", "w");
-    for(int i = 0; i < 5210*2; i++){
+    fp = fopen("output/exp/unfiltered_1.44M_10sec.txt", "w");
+	int sec = 5;
+	int numsamples = int(sec * capture_config->sample_rate/CHUNK_SIZE);
+    for(int i = 0; i < numsamples; i++){
 #else
     while(true){
 #endif
@@ -99,7 +100,7 @@ void* capture_thread(void* args){
         int ret = sdr->readStream(rx_stream, buffs, CHUNK_SIZE, flags, time_ns, 1e5);
         complex<float>* datap = (complex<float>*) data;
 
-#if CAPTURE_RAW
+#ifdef RAWCAPTURE
     for(int j = 0; j < CHUNK_SIZE; j++){
         fprintf(fp, "%f,%f\n", datap[j].real(), datap[j].imag());
     }
@@ -107,7 +108,7 @@ void* capture_thread(void* args){
         out->push(datap);
 #endif
     }
-#if CAPTURE_RAW
+#ifdef RAWCAPTURE
     fclose(fp);
 #endif
     return nullptr;

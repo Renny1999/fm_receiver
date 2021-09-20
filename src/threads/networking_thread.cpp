@@ -52,8 +52,8 @@ void* networking_thread(void* args){
 				double LRdiff_sample = data2[i];
 				//double LRdiff_sample = data1[i];
 
-				float left = float(LRsum_sample + LRdiff_sample);
-				float right = float(LRsum_sample - LRdiff_sample);
+				float left = float(LRsum_sample + LRdiff_sample)*0.8;
+				float right = float(LRsum_sample - LRdiff_sample)*0.8;
 
 				int left_int = float2int16(left);
 				int right_int = float2int16(right);

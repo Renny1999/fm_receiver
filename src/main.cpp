@@ -46,7 +46,7 @@ int main(int argc, char** argv){
 		printf("USAGE: main [center frequency]\n Default: %f\n", fc);
 	}else{
 		fc = stod(argv[1]);
-        printf("fs = %f\n", fc);
+        printf("fc = %f\n", fc);
 	}
 
     printf("Center Frequency: %.2fe6 Hz\n", fc/(1e6));
