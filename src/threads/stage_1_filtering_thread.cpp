@@ -348,8 +348,6 @@ void* stage_1_filtering_thread_h(void* args){
     int index = 0;
     while(!params->exit_loop->load()){
         QueueElement<complex<float>>* popped = in->pop(3000, name);
-        // printf("[STAGE 1]   %d\n", c);
-        // c++;
 
         if(popped == nullptr){
             printf("[%s]\t\ttimed out!, exiting thread...\n", name.c_str());

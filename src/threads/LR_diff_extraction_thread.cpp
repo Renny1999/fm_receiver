@@ -8,7 +8,6 @@
 #include "../utils/FixedSizedDeque.h"
 #include "../utils/Deque.h"
 #include "LR_diff_extraction_thread.h"
-
 using namespace std;
 
 void* LR_diff_extraction_thread(void* args){
@@ -37,12 +36,15 @@ void* LR_diff_extraction_thread(void* args){
 
 	int counter = 0;
 	int index = 0;
-	// int c = 0;
+#ifdef DEBUG
+ 	int c = 0;
+#endif
 	// while(!params->exit_loop->load()){
     while(true){
-        // printf("[%s]   %d\n",name.c_str(), c);
-        // c++;
-
+#ifdef DEBUG
+       printf("[%s]   %d\n",name.c_str(), c);
+       c++;
+#endif
 		QueueElement<complex<double>>* popped1 = LR_diff->pop(3000, name);
         if(popped1 == nullptr){
             printf("[%s]\t\ttimed out!, exiting thread...\n", name.c_str());

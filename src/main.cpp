@@ -37,11 +37,11 @@ using namespace chrono;
 int CHUNK_SIZE = 512;
 int Fs = 1.44e6;
 int PORT = 4500;
-bool tcp = false;
+bool tcp = true;
 // int Fs = 2.4e6;
 
 int main(int argc, char** argv){
-	double fc = 89.3e6;
+	double fc = 87.9e6;
 	if(argc < 2){
 		printf("USAGE: main [center frequency]\n Default: %f\n", fc);
 	}else{
@@ -146,7 +146,9 @@ int main(int argc, char** argv){
         LR_diff_ext_config.pilot = &pilot_extraction_out2;
         LR_diff_ext_config.out = &LR_diff_out;
         LR_diff_ext_config.chunk_size = CHUNK_SIZE;
-
+		LR_diff_ext_config.dec_rate = 2;
+		LR_diff_ext_config.sample_rate = 480000/5;
+		LR_diff_ext_config.taps = 32;
         LR_diff_ext_config.filter_path_h = "./filters/LR_diff_filter_h_15kHz.txt";
 
 

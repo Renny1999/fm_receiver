@@ -26,21 +26,21 @@ void* networking_thread(void* args){
 
 	double* data1;
 	double* data2;
-	int buffer_index;
+	int buffer_index = 0;
 
 	float FLOAT_MIN = std::numeric_limits<float>::lowest();
 	char buffer[512] = {0};
 
 	// while(!params->exit_loop->load()){
     while(true){
-		QueueElement<double>* popped1 = LRsum->pop(3000, name);
+		QueueElement<double>* popped1 = LRsum->pop(10000, name);
 		if(popped1 == nullptr){
-			printf("[%s]\t\ttimed out! exiting...\n", name.c_str());
+			printf("[%s]\t\ttimed out! waiting for LRsum exiting...\n", name.c_str());
 			break;
 		}
-		QueueElement<double>* popped2 = LRdiff->pop(3000, name);
+		QueueElement<double>* popped2 = LRdiff->pop(10000, name);
 		if(popped2 == nullptr){
-			printf("[%s]\t\ttimed out! exiting...\n", name.c_str());
+			printf("[%s]\t\ttimed out waiting for LRdiff exiting...\n", name.c_str());
 			break;
 		}
 
@@ -59,7 +59,7 @@ void* networking_thread(void* args){
 				int right_int = float2int16(right);
 				unsigned char* left_bytes = reinterpret_cast<unsigned char *>(&left_int);
 				unsigned char* right_bytes = reinterpret_cast<unsigned char *>(&right_int);
-				
+
 				for(int j = 0; j < 2; j++){
 					buffer[buffer_index] = left_bytes[j];
 					buffer_index = (buffer_index+1)%512;
