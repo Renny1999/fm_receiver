@@ -17,6 +17,7 @@ FFTW3 with --enable-float
 * Flags needed after -o (for linking library)
   * -lSoapySDR  (needed to use SoapySDR)
   * -lfftw3f  (needed to use fftw3's float version)
+  * -DEBUG  (needed if you want detailed print statements)
 
 ![Screenshot 2021-06-26 202235](https://user-images.githubusercontent.com/33414341/123531794-6ca6d280-d6bc-11eb-9ad8-ad09891b33cd.png)
 THREAD | INPUT | OUTPUT
