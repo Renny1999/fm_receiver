@@ -45,6 +45,8 @@ networking thread | L+R audio at 48kHz <br/> and <br/> L-R audio at 48kHz <br/> 
     * After such changes, it is observed that the program does not use unbounded amount of memory, indicating that perhaps nothing more need to be done in terms of memory management
     [ ] Minor memory leaks still exists, need investigation
 * [ ] Verify stereo audio is working
+* [ ] check if de-emphasis filter is needed
+* [ ] investigate audio clipping (maybe set the gain to 0.95?)
 
 # Notes: <br />
 * ## Fs = 1.44MHz
