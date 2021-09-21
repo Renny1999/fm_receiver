@@ -113,8 +113,8 @@ int main(int argc, char** argv){
         pilot_extract_config1.exit_loop = exit_loop;
         pilot_extract_config1.in = &fm_demod_out2;
         pilot_extract_config1.out = &pilot_extraction_out1;
-        pilot_extract_config1.filter_path_diffeq_a = "./filters/18kHz_20kHz_bp_a1.txt";
-        pilot_extract_config1.filter_path_diffeq_b = "./filters/18kHz_20kHz_bp_b1.txt";
+        pilot_extract_config1.filter_path_diffeq_a = "./filters/18kHz_20kHz_bp_a.txt";
+        pilot_extract_config1.filter_path_diffeq_b = "./filters/18kHz_20kHz_bp_b.txt";
         pilot_extract_config1.sample_rate = 480e3;
         pilot_extract_config1.chunk_size = CHUNK_SIZE;
         pilot_extract_config1.dec_rate = 5;
@@ -124,8 +124,8 @@ int main(int argc, char** argv){
         pilot_extract_config2.exit_loop = exit_loop;
         pilot_extract_config2.in = &pilot_extraction_out1;
         pilot_extract_config2.out = &pilot_extraction_out2;
-        pilot_extract_config2.filter_path_diffeq_a = "./filters/18kHz_20kHz_bp_a2.txt";
-        pilot_extract_config2.filter_path_diffeq_b = "./filters/18kHz_20kHz_bp_b2.txt";
+        pilot_extract_config2.filter_path_diffeq_a = "./filters/37kHz_39kHz_bp_a.txt";
+        pilot_extract_config2.filter_path_diffeq_b = "./filters/37kHz_39kHz_bp_b.txt";
         pilot_extract_config2.sample_rate = 480e3/5;
         pilot_extract_config2.chunk_size = CHUNK_SIZE;
         pilot_extract_config2.taps = 64;
@@ -135,6 +135,7 @@ int main(int argc, char** argv){
         LR_diff_config.in = &fm_demod_out3;
         LR_diff_config.out = &LR_diff_recovery_out;
         LR_diff_config.chunk_size = CHUNK_SIZE;
+        LR_diff_config.gain = 10;
         LR_diff_config.dec_rate = 5;
         LR_diff_config.sample_rate = 480000;
         LR_diff_config.filter_path_diffeq_a = "./filters/22kHz_54kHz_bp_a.txt";
@@ -203,21 +204,13 @@ int main(int argc, char** argv){
     exit_loop->store(true);
     
 
-    cout<<"capture"<<endl;
     pthread_join(capture_id, NULL);
-    cout<<"stage_1"<<endl;
     pthread_join(stage_1_id, NULL);
-    cout<<"fm_demod"<<endl;
     pthread_join(fm_demod_id, NULL);
-    cout<<"mono"<<endl;
     pthread_join(mono_audio_extraction_id, NULL);
-    cout<<"pe1"<<endl;
     pthread_join(pilot_extraction_id1, NULL);
-    cout<<"pe2"<<endl;
     pthread_join(pilot_extraction_id2, NULL);
-    cout<<"diff_recov"<<endl;
     pthread_join(LR_diff_recovery_id, NULL);
-    cout<<"LR_extract"<<endl;
     pthread_join(LR_diff_extraction_id, NULL);
     pthread_join(networking_id, NULL);
 

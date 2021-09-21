@@ -19,6 +19,7 @@ struct LR_diff_recovery_args{
 	int chunk_size;
 
 	int dec_rate;
+	double gain;
 };
 
 void* LR_diff_recovery_thread(void* args);

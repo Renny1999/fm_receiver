@@ -33,7 +33,9 @@ struct pilot_extract_args_2{
 	int taps;
 };
 
+//  the output is squared
 void* pilot_extraction_thread_stage_1_diffeq(void* args);
+// 	the output is not squared
 void* pilot_extraction_thread_stage_2_diffeq(void* args);
 
 #endif

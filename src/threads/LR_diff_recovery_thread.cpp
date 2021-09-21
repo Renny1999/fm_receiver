@@ -16,6 +16,7 @@ void* LR_diff_recovery_thread(void* args){
 	LR_diff_recovery_args* params = (LR_diff_recovery_args*) args;
 	BlockingQueue<double>* in = params->in;
 	BlockingQueue<complex<double>>* out = params->out;
+	double gain = params->gain;
 
 	int Fs = params->sample_rate;
 	int chunk_size = params->chunk_size;
@@ -80,7 +81,7 @@ void* LR_diff_recovery_thread(void* args){
 			sig_filtered[i] = res;
 
 			if(counter == 0){
-                decimated[index] = sig_filtered[i];
+                decimated[index] = sig_filtered[i]*gain;
                 index = (index+1) % chunk_size;
                 if(index == 0){
                     out->push(decimated);
