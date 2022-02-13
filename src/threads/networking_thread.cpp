@@ -17,7 +17,7 @@ void* networking_thread(void* args){
 	string name = "NETWORKING";
 	networking_args* params = (networking_args*) args;
 
-	BlockingQueue<double>* LRsum = params->LRsum;
+	BlockingQueue<double>* LRsum = params->LRsum; /* mono audio */
 	BlockingQueue<double>* LRdiff = params->LRdiff;
 	int chunk_size = params->chunk_size;
 	int socket_fd = params->socket_fd;
@@ -32,7 +32,8 @@ void* networking_thread(void* args){
 	char buffer[512] = {0};
 
 	// while(!params->exit_loop->load()){
-    while(true){
+	while(true){
+
 		QueueElement<double>* popped1 = LRsum->pop(10000, name);
 		if(popped1 == nullptr){
 			printf("[%s]\t\ttimed out! waiting for LRsum exiting...\n", name.c_str());
@@ -46,14 +47,17 @@ void* networking_thread(void* args){
 
 		data1 = popped1->data;
 		data2 = popped2->data;
+
 		if(params->socket_fd != -1){
 			for(int i = 0; i < chunk_size; i++){
 				double LRsum_sample = data1[i];
 				double LRdiff_sample = data2[i];
 				//double LRdiff_sample = data1[i];
 
-				float left = float(LRsum_sample + LRdiff_sample)*0.8;
-				float right = float(LRsum_sample - LRdiff_sample)*0.8;
+				//float left = float(LRsum_sample + LRdiff_sample)*0.8;
+				//float right = float(LRsum_sample - LRdiff_sample)*0.8;
+				float left = float(LRsum_sample)*0.8;
+				float right = float(LRsum_sample)*0.8;
 
 				int left_int = float2int16(left);
 				int right_int = float2int16(right);
@@ -77,7 +81,7 @@ void* networking_thread(void* args){
 					}
 				}
 			}
-		}
+		} 
 		delete popped1;
 		delete popped2;
 	}// end while
