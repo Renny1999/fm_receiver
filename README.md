@@ -47,6 +47,7 @@ networking thread | L+R audio at 48kHz <br/> and <br/> L-R audio at 48kHz <br/> 
 * [ ] Verify stereo audio is working
 * [ ] check if de-emphasis filter is needed
 * [ ] investigate audio clipping (maybe set the gain to 0.95?)
+* [ ] Add ways to get a spectrum snapshot for a buffer
 
 # Notes: <br />
 * ## Fs = 1.44MHz
