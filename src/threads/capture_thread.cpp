@@ -84,8 +84,8 @@ void* capture_thread(void* args){
 #ifdef RAWCAPTURE
     FILE* fp;
     fp = fopen("output/exp/unfiltered_1.44M_10sec.txt", "w");
-	int sec = 5;
-	int numsamples = int(sec * capture_config->sample_rate/CHUNK_SIZE);
+    int sec = 30;
+    int numsamples = int(sec * capture_config->sample_rate/CHUNK_SIZE);
     for(int i = 0; i < numsamples; i++){
 #else
     while(true){

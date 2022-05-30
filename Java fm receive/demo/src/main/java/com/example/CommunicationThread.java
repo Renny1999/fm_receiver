@@ -57,14 +57,12 @@ public class CommunicationThread extends Thread {
             System.out.println("CT:\tconnection established to " + IP + ":" + PORT);
 
             this.inputStream = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            this.outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));        
+            this.outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    
-    
+
     public static byte convert2byte(float by) {
 		float sample = by;
 		
