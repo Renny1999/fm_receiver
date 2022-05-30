@@ -175,7 +175,7 @@ int main(int argc, char** argv){
     pthread_create(&fm_demod_id, NULL, &FM_demod_thread, &fm_demod_config);
 
     pthread_t mono_audio_extraction_id;
-    pthread_create(&mono_audio_extraction_id, NULL, &mono_audio_extraction_thread_diffeq, &m_audio_extract_config);
+    pthread_create(&mono_audio_extraction_id, NULL, &mono_audio_extraction_thread_diffeq, &fm_audio_extract_config);
 
     pthread_t pilot_extraction_id1;
     pthread_create(&pilot_extraction_id1, NULL, &pilot_extraction_thread_stage_1_diffeq, &pilot_extract_config1);
