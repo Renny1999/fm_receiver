@@ -98,16 +98,16 @@ int main(int argc, char** argv){
         fm_demod_config.sample_rate = 480e3;   
 
     m_audio_extract_args m_audio_extract_config;
-        m_audio_extract_config.exit_loop = exit_loop;
-        m_audio_extract_config.in = &fm_demod_out1;
-        m_audio_extract_config.out = &mono_audio_extraction_out;
-        m_audio_extract_config.filter_path_fft = "./filters/stage_1_filter.txt";
-        m_audio_extract_config.filter_path_diffeq_a = "./filters/15kHz_lp_a.txt";
-        m_audio_extract_config.filter_path_diffeq_b = "./filters/15kHz_lp_b.txt";
-        m_audio_extract_config.signal_bw = 44.1*1000;    
-        m_audio_extract_config.sample_rate = 480e3;
-        m_audio_extract_config.dec_rate = 10;
-        m_audio_extract_config.chunk_size = CHUNK_SIZE;
+        fm_audio_extract_config.exit_loop = exit_loop;
+        fm_audio_extract_config.in = &fm_demod_out1;
+        fm_audio_extract_config.out = &mono_audio_extraction_out;
+        fm_audio_extract_config.filter_path_fft = "./filters/stage_1_filter.txt";
+        fm_audio_extract_config.filter_path_diffeq_a = "./filters/15kHz_lp_a.txt";
+        fm_audio_extract_config.filter_path_diffeq_b = "./filters/15kHz_lp_b.txt";
+        fm_audio_extract_config.signal_bw = 44.1*1000;    
+        fm_audio_extract_config.sample_rate = 480e3;
+        fm_audio_extract_config.dec_rate = 10;
+        fm_audio_extract_config.chunk_size = CHUNK_SIZE;
     
     pilot_extract_args_1 pilot_extract_config1;
         pilot_extract_config1.exit_loop = exit_loop;
@@ -147,9 +147,9 @@ int main(int argc, char** argv){
         LR_diff_ext_config.pilot = &pilot_extraction_out2;
         LR_diff_ext_config.out = &LR_diff_out;
         LR_diff_ext_config.chunk_size = CHUNK_SIZE;
-		LR_diff_ext_config.dec_rate = 2;
-		LR_diff_ext_config.sample_rate = 480000/5;
-		LR_diff_ext_config.taps = 32;
+        LR_diff_ext_config.dec_rate = 2;
+        LR_diff_ext_config.sample_rate = 480000/5;
+        LR_diff_ext_config.taps = 32;
         LR_diff_ext_config.filter_path_h = "./filters/LR_diff_filter_h_15kHz.txt";
 
 
