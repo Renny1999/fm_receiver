@@ -6,7 +6,7 @@
 #include <atomic>
 #include "../utils/BlockingQueue.h"
 
-struct m_audio_extract_args{
+struct fm_audio_extract_args{
     std::atomic<bool>* exit_loop;
     BlockingQueue<double>* in; 
     BlockingQueue<double>* out; 
